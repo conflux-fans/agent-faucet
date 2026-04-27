@@ -1,0 +1,22 @@
+{
+  "name": "agent-faucet",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "serverless",
+    "skill"
+  ],
+  "scripts": {
+    "test": "bun test shared/test serverless/test skill/test",
+    "build:frontend": "bun run frontend/build.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.3",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "viem": "^2.41.2",
+    "zod": "^4.2.0"
+  }
+}

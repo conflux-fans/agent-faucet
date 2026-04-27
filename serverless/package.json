@@ -1,0 +1,11 @@
+{
+  "name": "@agent-faucet/serverless",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/handler.ts"
+  },
+  "dependencies": {
+    "@agent-faucet/shared": "workspace:*"
+  }
+}

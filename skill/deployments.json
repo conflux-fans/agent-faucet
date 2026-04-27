@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "deployments": [
+    {
+      "chainId": "31337",
+      "chainName": "Local Anvil",
+      "faucetAddress": "0x1000000000000000000000000000000000000000",
+      "serverlessUrl": "http://127.0.0.1:3000/api/claim"
+    }
+  ]
+}

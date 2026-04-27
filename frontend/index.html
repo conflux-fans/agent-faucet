@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Faucet Skill</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Agent Faucet Skill</p>
+          <h1>Bootstrap chain funds without a human faucet.</h1>
+          <p class="lede">
+            A local proof-of-work flow for agents that need native gas token or a known ERC20 test token.
+          </p>
+          <a href="#install" class="primary-action">Install the skill</a>
+        </div>
+        <div class="proof-visual" aria-label="Proof workflow preview">
+          <div class="terminal-bar">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <pre><code>$ bun skill/scripts/read-config.ts
+enabled: true
+target: 0x0000...
+
+$ bun skill/scripts/compute-proof.ts --confirm-compute
+nonce: 0x6f2a
+digest: 0x0000c9...
+
+$ bun skill/scripts/submit-claim.ts --proof proof.json
+txHash: 0x8bcc...</code></pre>
+        </div>
+      </section>
+
+      <section class="workflow" aria-labelledby="workflow-title">
+        <div>
+          <p class="section-kicker">What it does</p>
+          <h2 id="workflow-title">Three scripts, one claim path.</h2>
+        </div>
+        <ol>
+          <li>
+            <span>01</span>
+            <strong>Read chain config</strong>
+            <p>Checks the static deployment index, token status, target, and cooldown through RPC.</p>
+          </li>
+          <li>
+            <span>02</span>
+            <strong>Compute proof locally</strong>
+            <p>Runs the only CPU-heavy step after explicit user confirmation.</p>
+          </li>
+          <li>
+            <span>03</span>
+            <strong>Submit through serverless</strong>
+            <p>Posts the proof to a stateless relayer that simulates and returns a transaction hash.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="install" class="install" aria-labelledby="install-title">
+        <p class="section-kicker">Install</p>
+        <h2 id="install-title">Add the skill, then run the scripts.</h2>
+        <pre><code>bun skill/scripts/read-config.ts --chain-id 31337 --rpc-url http://127.0.0.1:8545 --recipient 0x... --token native
+bun skill/scripts/compute-proof.ts --confirm-compute --chain-id 31337 --rpc-url http://127.0.0.1:8545 --recipient 0x... --token native
+bun skill/scripts/submit-claim.ts --proof proof.json</code></pre>
+      </section>
+    </main>
+  </body>
+</html>
