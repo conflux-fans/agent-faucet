@@ -1,0 +1,7 @@
+node_modules
+cache
+contracts/out
+coverage
+.env
+.env.*
+!.env.example
