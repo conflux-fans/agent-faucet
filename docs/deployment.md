@@ -25,18 +25,18 @@ Conflux eSpace Testnet:
 
 ## 1. Choose Deployment Parameters
 
-The initial testnet deployment uses the same conservative defaults as the contract tests, with a moderate proof target for agent-local computation:
+The current testnet runtime configuration uses a wide proof validity window, a one-day block cooldown, and a moderate proof target for agent-local computation:
 
 ```text
 minEntropyAgeBlocks      = 8
-maxEntropyAgeBlocks      = 45
+maxEntropyAgeBlocks      = 255
 defaultCooldownBlocks    = 86400
-nativeTransferGasLimit   = 30000
+nativeTransferGasLimit   = 50000
 defaultAmount            = 10000000000000000
 defaultTarget            = 0x0000a7c5ac471b4784230fcf80dc33721d53cddd6e04c059210385c67dfe32a0
 ```
 
-`defaultAmount` is `0.01` native token. The target is approximately `2^256 / 100000`, so a proof should take about `100000` digest attempts on average.
+`defaultAmount` is `0.01` native token. The target is approximately `2^256 / 100000`, so a proof should take about `100000` digest attempts on average. As a local benchmark, the current single-threaded TypeScript proof loop finds a proof in roughly 2 seconds on an M2 Pro at this target; treat this as hardware-dependent guidance, not a protocol guarantee.
 
 ## 2. Deploy the Contract
 
@@ -56,7 +56,7 @@ forge create contracts/src/AgentFaucet.sol:AgentFaucet \
   --gas-limit 10000000 \
   --private-key "$PRIVATE_KEY" \
   --constructor-args \
-  "(8,45,86400,30000,10000000000000000,1157920892373161954235709850086879078532699846656405640394575840079131296)" \
+  "(8,255,86400,50000,10000000000000000,1157920892373161954235709850086879078532699846656405640394575840079131296)" \
   "$(cast wallet address --private-key "$PRIVATE_KEY")"
 ```
 
@@ -183,6 +183,8 @@ bun skills/agent-faucet/scripts/submit-claim.ts --proof proof.json
 ## 7. Optional Contract Verification
 
 ConfluxScan verification uses the Etherscan-compatible endpoint. Do not pass `--chain-id`.
+
+For a new deployment, use the same constructor argument tuple from step 2. The current testnet contract was deployed before runtime parameter tuning, so verifying `0xAEcbc1bd17F65aef2f5965E56bFBFEF283123F9b` still requires its original constructor tuple:
 
 ```bash
 forge verify-contract "$FAUCET_ADDRESS" contracts/src/AgentFaucet.sol:AgentFaucet \

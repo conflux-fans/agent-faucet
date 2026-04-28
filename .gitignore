@@ -5,5 +5,7 @@ coverage
 .env
 .env.*
 !.env.example
+.foundry-keystores
+.foundry-password
 .DS_Store
 .vercel
