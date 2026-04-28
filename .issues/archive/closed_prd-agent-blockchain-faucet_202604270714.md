@@ -2,11 +2,11 @@
 # This section is managed by the CLI. Do not edit manually.
 id: "09830485-5d4a-4255-bad1-8e1f83e404e9"
 title: "PRD: Agent Blockchain Faucet"
-status: "open"
+status: "closed"
 priority: "high"
 labels: ["FEATURE REQUEST"]
 created_at: "2026-04-27T07:14:00Z"
-updated_at: "2026-04-27T07:15:00Z"
+updated_at: "2026-04-28T02:18:00Z"
 ---
 
 ## Problem Statement
@@ -148,3 +148,66 @@ skill 是 agent 的主要入口。skill 内置静态 `deployments.json`，提供
 - The design intentionally accepts per-recipient/token state growth to avoid per-proof state growth while still providing real replay protection.
 - The serverless service improves usability for gasless agents, but direct contract calls remain possible for callers that already have gas.
 - The PoW compute script must be treated as an expensive operation by the skill instructions and should require user confirmation before execution.
+
+## Acceptance Record
+
+Accepted on 2026-04-28.
+
+Verification performed:
+
+- `bun test` passed: shared schema/digest tests, serverless handler tests, and skill script tests.
+- `forge test` passed: 20 contract tests covering native/ERC20 happy paths, replay/cooldown, entropy bounds, invalid proof, disabled token, config inheritance/overrides, pause, withdraw, native/ERC20 transfer failures, and reentrancy.
+- `bun run build:frontend` passed: static frontend files verified.
+- Skill runtime scripts were checked for direct imports of `@agent-faucet/shared`, `viem`, and `zod`; no runtime dependency on those packages remains under `skills/agent-faucet/scripts`.
+- Frontend command examples were corrected to the current `skills/agent-faucet/scripts/...` path during acceptance.
+
+Accepted deviations / follow-up notes:
+
+- The skill package now lives at `skills/agent-faucet` rather than the original singular `skill` module name in the first PRD draft.
+- Current deployment index contains the local Anvil deployment only; production/testnet deployment values remain an operational follow-up.
+- Serverless still depends on shared schemas and `viem`, which matches the PRD; only the skill runtime was made self-contained except for Bun and Foundry `cast`.
+
+### User Story Checklist
+
+| # | Status | Acceptance note |
+|---|---|---|
+| 1 | Pass | Skill exists under `skills/agent-faucet` with install/use instructions. |
+| 2 | Pass | Skill contains static `deployments.json`; currently local Anvil only. |
+| 3 | Pass | `--token` defaults to `native` in common skill args. |
+| 4 | Pass | ERC20 address can be passed explicitly through `--token`. |
+| 5 | Pass | Skill reads global/token config from chain before proof computation. |
+| 6 | Pass | `read-config.ts` provides lightweight readiness/config inspection. |
+| 7 | Pass | PoW is isolated in `compute-proof.ts` and requires `--confirm-compute`. |
+| 8 | Pass | Proof output uses stable `version`, `challenge`, `proof`, `debug` schema. |
+| 9 | Pass | Proof output includes debug fields for block, hash, digest, target, attempts, and timing. |
+| 10 | Pass | `submit-claim.ts` posts an existing proof file without recomputing. |
+| 11 | Partial | Serverless returns `txHash` on success, but response also includes `ok: true`. |
+| 12 | Pass | Serverless errors use structured `{ ok: false, code, message }`. |
+| 13 | Pass | PoW digest binds the recipient address. |
+| 14 | Pass | Contract `claim` is open and serverless can submit for the proof recipient. |
+| 15 | Partial | Entropy max age is configurable for relay delay tolerance, but 5-second reliability is not separately measured. |
+| 16 | Pass | Stale proof expiry is enforced through `maxEntropyAgeBlocks`. |
+| 17 | Pass | Claim amount is fixed by config; users cannot choose arbitrary amounts. |
+| 18 | Pass | Native and ERC20 claims share the same `claim` path and proof shape. |
+| 19 | Pass | Native/ERC20 transfer failure tests confirm cooldown is not consumed on revert. |
+| 20 | Pass | Contract validates PoW on-chain. |
+| 21 | Pass | Cooldown is enforced on-chain by `recipient` and `token`. |
+| 22 | Pass | Storage grows by `nextClaimBlock[recipient][token]`, not by proof digest. |
+| 23 | Pass | Owner can configure global default amount, target, and cooldown. |
+| 24 | Pass | Token amount/target/cooldown zero values inherit global defaults. |
+| 25 | Pass | `address(0)` represents native token. |
+| 26 | Pass | Native and ERC20 token configs are independently enabled/disabled. |
+| 27 | Pass | Global min/max entropy block age are configurable. |
+| 28 | Pass | Native transfer uses a configurable gas cap. |
+| 29 | Pass | Owner-only pause and unpause are implemented. |
+| 30 | Pass | Owner-only native and ERC20 withdrawals are implemented. |
+| 31 | Pass | Domain failures use custom Solidity errors; OpenZeppelin owner/pause errors remain from dependencies. |
+| 32 | Pass | Successful claims emit `Claimed`. |
+| 33 | Pass | Serverless handler is stateless. |
+| 34 | Pass | Serverless serves one deployment from environment variables. |
+| 35 | Pass | Requests include chain/faucet data and mismatches are rejected early. |
+| 36 | Pass | Serverless uses `viem` wallet/public client behavior for simulation and send. |
+| 37 | Pass | Serverless simulates before writing the transaction. |
+| 38 | Pass | Shared TS modules provide schema, ABI, deployment parsing, and hashing for serverless/shared tests. |
+| 39 | Partial | Solidity and TS digest behavior are covered by deterministic tests, but there is no single direct cross-language integration test invoking both on the same fixture. |
+| 40 | Pass | Frontend is static and describes skill usage without wallet connection or chain reads. |
