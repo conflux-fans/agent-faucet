@@ -2,10 +2,10 @@
   "version": 1,
   "deployments": [
     {
-      "chainId": "31337",
-      "chainName": "Local Anvil",
-      "faucetAddress": "0x1000000000000000000000000000000000000000",
-      "serverlessUrl": "http://127.0.0.1:3000/api/claim"
+      "chainId": "71",
+      "chainName": "Conflux eSpace Testnet",
+      "faucetAddress": "0xAEcbc1bd17F65aef2f5965E56bFBFEF283123F9b",
+      "serverlessUrl": "https://agent-faucet.vercel.app/api/claim"
     }
   ]
 }

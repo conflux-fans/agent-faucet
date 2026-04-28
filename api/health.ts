@@ -1,4 +1,4 @@
-import { handleHealth } from "../src/handler.js";
+import { handleHealth } from "../serverless/src/handler.js";
 
 export const config = {
   runtime: "edge",

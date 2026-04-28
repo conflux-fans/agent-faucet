@@ -96,7 +96,8 @@ export async function readBlockHash(cast: CastRunner, rpcUrl: string, blockNumbe
 }
 
 export function parseCastValues(output: string): string[] {
-  const values = output.match(/0x[0-9a-fA-F]+|true|false|[0-9]+/g);
+  const outputWithoutAnnotations = output.replace(/\s+\[[^\]]+\]/g, "");
+  const values = outputWithoutAnnotations.match(/0x[0-9a-fA-F]+|true|false|[0-9]+/g);
   if (!values) {
     throw new Error(`Unable to parse cast output: ${output}`);
   }

@@ -1,0 +1,11 @@
+{
+  "buildCommand": "bun run build:frontend",
+  "installCommand": "bun install --frozen-lockfile",
+  "outputDirectory": "frontend",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { handleClaim } from "../src/handler.js";
+import { handleClaim } from "../serverless/src/handler.js";
 
 export const config = {
   runtime: "edge",

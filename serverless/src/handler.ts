@@ -141,7 +141,8 @@ export async function handleClaim(request: Request, env: Env, clients = createCl
         parsed.proof.nonce,
       ],
     });
-    const txHash = await clients.walletClient.writeContract(simulation.request);
+    const { account: _simulatedAccount, ...sendRequest } = simulation.request as { account?: unknown };
+    const txHash = await clients.walletClient.writeContract(sendRequest);
     return jsonResponse({ ok: true, txHash });
   } catch (error) {
     return jsonResponse(errorBody("SIMULATION_OR_SEND_FAILED", errorMessage(error)), 400);
