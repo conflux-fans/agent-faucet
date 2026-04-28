@@ -21,14 +21,22 @@ main {
 }
 
 .hero {
-  min-height: 64svh;
-  padding: clamp(2rem, 5vw, 5rem);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  min-height: 100svh;
+  padding: clamp(5.75rem, 8vw, 7rem) clamp(2rem, 5vw, 5rem) clamp(3rem, 5vw, 5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(28rem, 0.78fr);
+  align-items: start;
+  gap: clamp(2rem, 6vw, 6rem);
   position: relative;
-  max-width: 45rem;
   animation: rise 700ms ease-out both;
+}
+
+.hero-copy {
+  max-width: 47rem;
+}
+
+.hero-details {
+  min-width: 0;
 }
 
 .language-switch {
@@ -41,6 +49,7 @@ main {
   border: 1px solid rgba(244, 241, 232, 0.14);
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.22);
+  z-index: 2;
 }
 
 .language-switch button {
@@ -83,7 +92,7 @@ h2 {
 }
 
 h1 {
-  font-size: clamp(3rem, 7vw, 6.4rem);
+  font-size: clamp(2.8rem, 5.5vw, 5.05rem);
   max-width: 12ch;
 }
 
@@ -107,54 +116,97 @@ h3 {
   max-width: 34rem;
 }
 
-.primary-action {
-  display: inline-flex;
-  align-items: center;
-  min-height: 3rem;
-  padding: 0 1.1rem;
-  color: #101211;
-  background: #f0c36a;
-  border-radius: 6px;
-  font-weight: 800;
-  text-decoration: none;
-  transition:
-    transform 180ms ease,
-    background 180ms ease;
-}
-
-.primary-action:hover {
-  transform: translateY(-2px);
-  background: #ffd98d;
-}
-
-pre {
-  margin: 0;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
 code {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: clamp(0.78rem, 1.4vw, 0.98rem);
+  font-size: clamp(0.74rem, 1vw, 0.9rem);
   line-height: 1.75;
 }
 
-.availability,
-.install {
-  padding: clamp(3rem, 6vw, 5rem) clamp(2rem, 5vw, 5rem) clamp(4rem, 7vw, 6rem);
+.install-actions {
+  display: grid;
+  gap: 1rem;
+  max-width: 42rem;
+}
+
+.install-action {
+  min-width: 0;
+  padding-top: 1rem;
   border-top: 1px solid rgba(244, 241, 232, 0.12);
 }
 
+.install-action h3 {
+  margin-bottom: 0.7rem;
+  font-size: clamp(1rem, 1.4vw, 1.18rem);
+}
+
+.copy-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  min-width: 0;
+  border: 1px solid rgba(244, 241, 232, 0.14);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.copy-row code {
+  min-width: 0;
+  padding: 0.75rem 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-row button {
+  min-width: 4.75rem;
+  border: 0;
+  border-left: 1px solid rgba(244, 241, 232, 0.14);
+  color: #101211;
+  background: #f0c36a;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+
+.copy-row button:hover {
+  background: #ffd98d;
+}
+
+.copy-row button[data-copied="true"] span {
+  display: none;
+}
+
+.copy-row button[data-copied="true"]::after {
+  content: "Copied";
+}
+
+html[data-lang="zh"] .copy-row button[data-copied="true"]::after {
+  content: "已复制";
+}
+
 .availability {
-  background: #121816;
+  padding: 1.35rem 0;
+  border-top: 1px solid rgba(244, 241, 232, 0.14);
+}
+
+.availability {
+  background: transparent;
+}
+
+.hero-details h2 {
+  font-size: clamp(1.45rem, 2.2vw, 2.25rem);
+  max-width: 18ch;
+  line-height: 1.08;
 }
 
 .availability-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.5rem, 4vw, 4rem);
-  max-width: 72rem;
-  margin-top: 2rem;
+  gap: 1rem;
+  margin-top: 1.4rem;
 }
 
 .availability-grid p {
@@ -171,44 +223,8 @@ code {
   display: block;
   margin-top: 0.65rem;
   color: #f4f1e8;
-  font-size: clamp(1.4rem, 3vw, 2.4rem);
+  font-size: clamp(1.15rem, 1.65vw, 1.55rem);
   line-height: 1.1;
-}
-
-.install pre {
-  margin-top: 1rem;
-  padding: clamp(1rem, 2vw, 1.5rem);
-  border-left: 3px solid #f0c36a;
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.install-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  max-width: 72rem;
-  margin-top: 2rem;
-}
-
-.install-option {
-  min-width: 0;
-  padding: clamp(1rem, 2vw, 1.5rem);
-  border: 1px solid rgba(244, 241, 232, 0.12);
-  border-radius: 8px;
-  background: rgba(244, 241, 232, 0.035);
-}
-
-.install-option p {
-  margin: 0.85rem 0 0;
-  color: #cbc6b9;
-  line-height: 1.55;
-}
-
-.note {
-  max-width: 44rem;
-  margin: 1.25rem 0 0;
-  color: #cbc6b9;
-  line-height: 1.55;
 }
 
 @keyframes rise {
@@ -226,6 +242,12 @@ code {
   .hero {
     min-height: auto;
     padding-top: 3rem;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .hero-details {
+    padding-top: 0;
   }
 
   .language-switch {
@@ -238,8 +260,19 @@ code {
     max-width: 10ch;
   }
 
-  .install-options {
+  .copy-row {
     grid-template-columns: 1fr;
+  }
+
+  .copy-row code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .copy-row button {
+    min-height: 2.75rem;
+    border-top: 1px solid rgba(244, 241, 232, 0.14);
+    border-left: 0;
   }
 
   .availability-grid {

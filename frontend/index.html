@@ -13,100 +13,84 @@
           <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
           <button type="button" data-set-lang="zh" aria-pressed="false">中文</button>
         </div>
-        <p class="eyebrow">Agent Faucet Skill</p>
-        <h1>
-          <span lang="en">Claim Test Chain Funds from an Agent Workflow</span>
-          <span lang="zh-CN">让 Agent 在工作流中领取测试链资金</span>
-        </h1>
-        <p class="lede">
-          <span lang="en">
-            Agent Faucet is a repo-backed skill that lets agents request native gas token or a known ERC20 test token
-            without using a browser faucet, wallet UI, CAPTCHA, or social login.
-          </span>
-          <span lang="zh-CN">
-            Agent Faucet 是一个可从仓库安装的 Skill，让 Agent 可以脚本化领取 native gas token 或已知 ERC20 测试币，
-            不需要浏览器 faucet、钱包 UI、验证码或社交登录。
-          </span>
-        </p>
-        <a href="#install" class="primary-action">
-          <span lang="en">Install the Skill</span>
-          <span lang="zh-CN">安装 Skill</span>
-        </a>
-      </section>
-
-      <section class="availability" aria-labelledby="availability-title">
-        <p class="section-kicker">
-          <span lang="en">Availability</span>
-          <span lang="zh-CN">可用部署</span>
-        </p>
-        <h2 id="availability-title">
-          <span lang="en">Supported Chain and Claimable Token</span>
-          <span lang="zh-CN">当前支持的链与可领取 Token</span>
-        </h2>
-        <div class="availability-grid">
-          <p>
-            <span lang="en">Network</span>
-            <span lang="zh-CN">网络</span>
-            <strong>Conflux eSpace Testnet</strong>
+        <div class="hero-copy">
+          <p class="eyebrow">Agent Faucet Skill</p>
+          <h1>
+            <span lang="en">Claim Test Chain Funds from an Agent Workflow</span>
+            <span lang="zh-CN">让 Agent 在工作流中领取测试链资金</span>
+          </h1>
+          <p class="lede">
+            <span lang="en">
+              Agent Faucet is a repo-backed skill that lets agents request native gas token or a known ERC20 test token
+              without using a browser faucet, wallet UI, CAPTCHA, or social login.
+            </span>
+            <span lang="zh-CN">
+              Agent Faucet 是一个可从仓库安装的 Skill，让 Agent 可以脚本化领取 native gas token 或已知 ERC20 测试币，
+              不需要浏览器 faucet、钱包 UI、验证码或社交登录。
+            </span>
           </p>
-          <p>
-            <span lang="en">Claimable Token</span>
-            <span lang="zh-CN">可领取 Token</span>
-            <strong>
-              <span lang="en">Native CFX</span>
-              <span lang="zh-CN">原生 CFX</span>
-            </strong>
-          </p>
+          <div class="install-actions" aria-label="Install options">
+            <div class="install-action">
+              <h3>
+                <span lang="en">Send the Skill to your agent</span>
+                <span lang="zh-CN">把 Skill 文件发给 Agent</span>
+              </h3>
+              <div class="copy-row">
+                <code>https://github.com/conflux-fans/agent-faucet/blob/main/skills/agent-faucet/SKILL.md</code>
+                <button
+                  type="button"
+                  data-copy="https://github.com/conflux-fans/agent-faucet/blob/main/skills/agent-faucet/SKILL.md"
+                >
+                  <span lang="en">Copy</span>
+                  <span lang="zh-CN">复制</span>
+                </button>
+              </div>
+            </div>
+            <div class="install-action">
+              <h3>
+                <span lang="en">Use Vercel Skills CLI</span>
+                <span lang="zh-CN">用 Vercel Skills CLI</span>
+              </h3>
+              <div class="copy-row">
+                <code>npx skills add https://github.com/conflux-fans/agent-faucet --skill agent-faucet</code>
+                <button
+                  type="button"
+                  data-copy="npx skills add https://github.com/conflux-fans/agent-faucet --skill agent-faucet"
+                >
+                  <span lang="en">Copy</span>
+                  <span lang="zh-CN">复制</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
-
-      <section id="install" class="install" aria-labelledby="install-title">
-        <p class="section-kicker">
-          <span lang="en">Install</span>
-          <span lang="zh-CN">安装</span>
-        </p>
-        <h2 id="install-title">
-          <span lang="en">Two Ways to Install</span>
-          <span lang="zh-CN">两种安装方式</span>
-        </h2>
-        <div class="install-options">
-          <article class="install-option">
-            <h3>
-              <span lang="en">Send the Skill to your agent</span>
-              <span lang="zh-CN">把 Skill 文件发给 Agent</span>
-            </h3>
-            <p>
-              <span lang="en">
-                Share the repository's <code>skills/agent-faucet/SKILL.md</code> file with your agent. It points to
-                the scripts, references, and deployment index used by the skill.
-              </span>
-              <span lang="zh-CN">
-                把仓库里的 <code>skills/agent-faucet/SKILL.md</code> 文件交给你的 Agent。它会指向
-                Skill 使用的脚本、参考文档和部署索引。
-              </span>
+        <div class="hero-details">
+          <section class="availability" aria-labelledby="availability-title">
+            <p class="section-kicker">
+              <span lang="en">Availability</span>
+              <span lang="zh-CN">可用部署</span>
             </p>
-            <pre><code>https://github.com/conflux-fans/agent-faucet/blob/main/skills/agent-faucet/SKILL.md</code></pre>
-          </article>
-          <article class="install-option">
-            <h3>
-              <span lang="en">Install with Vercel Skills CLI</span>
-              <span lang="zh-CN">用 Vercel Skills CLI 安装</span>
-            </h3>
-            <p>
-              <span lang="en">
-                Use the <code>npx skills</code> installer when your agent supports the open agent skills format.
-              </span>
-              <span lang="zh-CN">
-                如果你的 Agent 支持开放的 agent skills 格式，可以用 <code>npx skills</code> 安装器直接安装。
-              </span>
-            </p>
-            <pre><code>npx skills add https://github.com/conflux-fans/agent-faucet --skill agent-faucet</code></pre>
-          </article>
+            <h2 id="availability-title">
+              <span lang="en">Supported Chain and Claimable Token</span>
+              <span lang="zh-CN">当前支持的链与可领取 Token</span>
+            </h2>
+            <div class="availability-grid">
+              <p>
+                <span lang="en">Network</span>
+                <span lang="zh-CN">网络</span>
+                <strong>Conflux eSpace Testnet</strong>
+              </p>
+              <p>
+                <span lang="en">Claimable Token</span>
+                <span lang="zh-CN">可领取 Token</span>
+                <strong>
+                  <span lang="en">Native CFX</span>
+                  <span lang="zh-CN">原生 CFX</span>
+                </strong>
+              </p>
+            </div>
+          </section>
         </div>
-        <p class="note">
-          <span lang="en">Runtime requirements: Bun and Foundry <code>cast</code>. Setup details live in <code>skills/agent-faucet/reference/install-requirements.md</code>.</span>
-          <span lang="zh-CN">运行要求：Bun 和 Foundry <code>cast</code>。安装细节见 <code>skills/agent-faucet/reference/install-requirements.md</code>。</span>
-        </p>
       </section>
     </main>
     <script>
@@ -127,6 +111,16 @@
 
       buttons.forEach((button) => {
         button.addEventListener("click", () => setLanguage(button.dataset.setLang));
+      });
+
+      document.querySelectorAll("[data-copy]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          await navigator.clipboard.writeText(button.dataset.copy);
+          button.dataset.copied = "true";
+          window.setTimeout(() => {
+            delete button.dataset.copied;
+          }, 1400);
+        });
       });
 
       setLanguage(initialLanguage);
