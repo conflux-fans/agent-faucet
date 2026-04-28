@@ -138,13 +138,12 @@ Expected response:
 
 ## 5. Update the Skill Deployment Index
 
-Update `skills/agent-faucet/deployments.json` with the deployed chain, RPC URL, faucet address, Vercel claim URL, and block explorer URL:
+Update `skills/agent-faucet/deployments.json` with the deployed chain, faucet address, Vercel claim URL, and block explorer URL:
 
 ```json
 {
   "chainId": "71",
   "chainName": "Conflux eSpace Testnet",
-  "rpcUrl": "https://evmtestnet.confluxrpc.com",
   "faucetAddress": "0x...",
   "serverlessUrl": "https://<vercel-deployment>/api/claim",
   "scanUrl": "https://evmtestnet.confluxscan.org"
@@ -160,6 +159,7 @@ Inspect on-chain config:
 ```bash
 bun skills/agent-faucet/scripts/read-config.ts \
   --chain-id 71 \
+  --rpc-url https://evmtestnet.confluxrpc.com \
   --recipient 0x... \
   --token native
 ```
@@ -170,6 +170,7 @@ Proof computation is CPU-intensive. Ask the operator before running it:
 bun skills/agent-faucet/scripts/compute-proof.ts \
   --confirm-compute \
   --chain-id 71 \
+  --rpc-url https://evmtestnet.confluxrpc.com \
   --recipient 0x... \
   --token native > proof.json
 ```

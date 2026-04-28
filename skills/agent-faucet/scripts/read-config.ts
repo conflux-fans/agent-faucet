@@ -7,16 +7,11 @@ import {
   runCast,
 } from "./lib/cast";
 import { Deployment, getDeployment } from "./lib/deployments";
-import { main, parseArgs, parseCommonArgs } from "./common";
+import { main, parseCommonArgs } from "./common";
 
 export async function readConfig(argv: string[], deps?: { deployment?: Deployment; cast?: CastRunner }) {
-  const rawArgs = parseArgs(argv);
-  const chainIdText = rawArgs["chain-id"];
-  if (typeof chainIdText !== "string") {
-    throw new Error("--chain-id is required");
-  }
-  const deployment = deps?.deployment ?? (await getDeployment(BigInt(chainIdText)));
-  const args = parseCommonArgs(argv, { rpcUrl: deployment.rpcUrl });
+  const args = parseCommonArgs(argv);
+  const deployment = deps?.deployment ?? (await getDeployment(args.chainId));
   const cast = deps?.cast ?? runCast;
 
   const [globalConfig, tokenConfig, nextClaimBlock, latestBlock] = await Promise.all([

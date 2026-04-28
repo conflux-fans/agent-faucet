@@ -9,13 +9,9 @@ export async function computeProof(argv: string[], deps?: { deployment?: Deploym
     throw new Error("Refusing to compute proof without --confirm-compute");
   }
 
-  const chainIdText = rawArgs["chain-id"];
-  if (typeof chainIdText !== "string") {
-    throw new Error("--chain-id is required");
-  }
+  const args = parseCommonArgs(argv);
   const maxAttempts = typeof rawArgs["max-attempts"] === "string" ? BigInt(rawArgs["max-attempts"]) : 10_000_000n;
-  const deployment = deps?.deployment ?? (await getDeployment(BigInt(chainIdText)));
-  const args = parseCommonArgs(argv, { rpcUrl: deployment.rpcUrl });
+  const deployment = deps?.deployment ?? (await getDeployment(args.chainId));
   const cast = deps?.cast ?? runCast;
 
   const [globalConfig, tokenConfig, latestBlockNumber] = await Promise.all([

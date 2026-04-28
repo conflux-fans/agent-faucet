@@ -10,10 +10,10 @@ export interface CommonArgs {
   token: Address;
 }
 
-export function parseCommonArgs(argv: string[], defaults?: { rpcUrl?: string }): CommonArgs {
+export function parseCommonArgs(argv: string[]): CommonArgs {
   const parsed = parseArgs(argv);
   const chainIdText = parsed["chain-id"];
-  const rpcUrl = parsed["rpc-url"] ?? defaults?.rpcUrl;
+  const rpcUrl = parsed["rpc-url"];
   const recipient = parsed.recipient;
   const token = parsed.token ?? "native";
 

@@ -22,24 +22,23 @@ See `reference/install-requirements.md` for installation and verification comman
    - chain: offer the configured `chainName` values.
    - token: offer `native` first, then ask for an ERC20 token address only if needed.
    - recipient: ask for an EVM hex address.
-2. Use the selected deployment's configured `rpcUrl` by default. Only ask the user for an RPC URL if the deployment does not provide one or the user explicitly wants to override it.
-3. Run `read-config.ts` to check whether the selected recipient can claim the selected token on the selected chain. Tell the user the result in plain language:
+2. Run `read-config.ts` to check whether the selected recipient can claim the selected token on the selected chain. Tell the user the result in plain language:
    - If claimable: say they can claim now.
    - If not claimable: say they cannot claim now and include the available reason from the config output, such as token disabled or cooldown not finished. Avoid exposing raw target values or proof parameters.
-4. If the user can claim, ask for explicit authorization before running the local proof-of-work calculation. Explain only that this is an anti-abuse check, it uses local CPU briefly, and the rough expected time. Suggested wording: "可以领取。继续前需要你明确授权我在本机做一次防滥用计算，通常会占用 CPU 一小段时间；在 Apple M-series 笔记本上常见为几秒到几十秒，具体取决于当前难度。是否继续？"
-5. Only after explicit authorization, run `compute-proof.ts` and then `submit-claim.ts` with the generated proof JSON.
-6. After submission completes, show the user the transaction hash and the block explorer link. Build the link from the deployment's `scanUrl` and the returned `txHash`; if `submit-claim.ts` already returns `scanTxUrl`, use that.
+3. If the user can claim, ask for explicit authorization before running the local proof-of-work calculation. Explain only that this is an anti-abuse check, it uses local CPU briefly, and the rough expected time. Suggested wording: "可以领取。继续前需要你明确授权我在本机做一次防滥用计算，通常会占用 CPU 一小段时间；在 Apple M-series 笔记本上常见为几秒到几十秒，具体取决于当前难度。是否继续？"
+4. Only after explicit authorization, run `compute-proof.ts` and then `submit-claim.ts` with the generated proof JSON.
+5. After submission completes, show the user the transaction hash and the block explorer link. Build the link from the deployment's `scanUrl` and the returned `txHash`; if `submit-claim.ts` already returns `scanTxUrl`, use that.
 
 Native token uses `native` or `0x0000000000000000000000000000000000000000`. ERC20 claims require the caller to provide the token address.
 
 ## Commands
 
 ```bash
-bun skills/agent-faucet/scripts/read-config.ts --chain-id 71 --recipient 0x... --token native
+bun skills/agent-faucet/scripts/read-config.ts --chain-id 31337 --rpc-url http://127.0.0.1:8545 --recipient 0x... --token native
 ```
 
 ```bash
-bun skills/agent-faucet/scripts/compute-proof.ts --confirm-compute --chain-id 71 --recipient 0x... --token native
+bun skills/agent-faucet/scripts/compute-proof.ts --confirm-compute --chain-id 31337 --rpc-url http://127.0.0.1:8545 --recipient 0x... --token native
 ```
 
 ```bash
