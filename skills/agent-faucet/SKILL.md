@@ -22,7 +22,7 @@ See `reference/install-requirements.md` for installation and verification comman
    - chain: offer the configured `chainName` values.
    - token: offer `native` first, then ask for an ERC20 token address only if needed.
    - recipient: ask for an EVM hex address.
-2. Use the selected deployment's configured `rpcUrls` by default. Do not ask the user for an RPC URL unless the deployment has no usable RPC endpoint or the user explicitly wants to override it.
+2. Use the selected deployment's configured `rpcUrl` by default. Do not ask the user for an RPC URL unless the deployment has no usable RPC endpoint or the user explicitly wants to override it.
 3. Run `read-config.ts` to check whether the selected recipient can claim the selected token on the selected chain. Tell the user the result in plain language:
    - If claimable: say they can claim now.
    - If not claimable: say they cannot claim now and include the available reason from the config output, such as token disabled or cooldown not finished. Avoid exposing raw target values or proof parameters.
