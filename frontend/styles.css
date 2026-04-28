@@ -139,9 +139,61 @@ code {
   line-height: 1.75;
 }
 
+.availability,
 .install {
   padding: clamp(3rem, 6vw, 5rem) clamp(2rem, 5vw, 5rem) clamp(4rem, 7vw, 6rem);
   border-top: 1px solid rgba(244, 241, 232, 0.12);
+}
+
+.availability {
+  background: #121816;
+}
+
+.availability-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  max-width: 72rem;
+  margin-top: 2rem;
+}
+
+.availability-column {
+  min-width: 0;
+}
+
+.column-label {
+  margin: 0 0 1rem;
+  color: #f0c36a;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.facts {
+  margin: 0;
+}
+
+.facts div {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.35fr) minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(244, 241, 232, 0.12);
+}
+
+.facts dt {
+  color: #8fe0b1;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.facts dd {
+  min-width: 0;
+  margin: 0;
+  color: #f4f1e8;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .install pre {
@@ -209,5 +261,14 @@ code {
 
   .install-options {
     grid-template-columns: 1fr;
+  }
+
+  .availability-grid,
+  .facts div {
+    grid-template-columns: 1fr;
+  }
+
+  .facts div {
+    gap: 0.4rem;
   }
 }
