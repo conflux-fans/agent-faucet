@@ -3,12 +3,13 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "shared",
     "serverless",
     "skills/agent-faucet"
   ],
   "scripts": {
-    "test": "bun test shared/test serverless/test skills/agent-faucet/test",
+    "test": "bun test test/all.test.ts",
+    "abi:check": "bun run scripts/check-agent-faucet-abi.ts",
+    "abi:update": "bun run scripts/update-agent-faucet-abi.ts",
     "build:frontend": "bun run frontend/build.ts"
   },
   "devDependencies": {

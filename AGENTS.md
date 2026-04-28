@@ -5,7 +5,6 @@ This repository is a Bun/TypeScript + Foundry monorepo for an agent-friendly fau
 ## Top-Level Shape
 
 - `contracts/`: Solidity source and Foundry tests. The on-chain faucet is the source of truth for claim validation, cooldowns, token config, entropy windows, and payouts.
-- `shared/`: TypeScript package exported as `@agent-faucet/shared`. It contains proof schemas, canonical digest computation, constants, deployment parsing, and the contract ABI.
 - `serverless/`: Stateless HTTP relay. It validates proof JSON, checks deployment mismatch, simulates `claim`, and sends the transaction with a configured relayer key.
 - `skills/agent-faucet/`: Installable agent skill. It contains the `SKILL.md`, deployment index, and Bun scripts for reading config, computing proofs, and submitting claims.
 - `frontend/`: Static install/landing page for the skill. `frontend/build.ts` currently verifies the static files rather than producing a bundled app.
@@ -25,7 +24,7 @@ The claim proof binds together:
 - `entropyBlockHash`
 - `nonce`
 
-The digest is `keccak256(abi.encode(...))`, not packed encoding. The Solidity implementation in `contracts/src/AgentFaucet.sol` and TypeScript implementation in `shared/src/pow.ts` must stay byte-for-byte compatible.
+The digest is `keccak256(abi.encode(...))`, not packed encoding. The Solidity implementation in `contracts/src/AgentFaucet.sol` and TypeScript implementation in `skills/agent-faucet/scripts/lib/pow.ts` must stay byte-for-byte compatible.
 
 Native token is represented by `address(0)` / `0x0000000000000000000000000000000000000000`.
 
@@ -51,20 +50,7 @@ The relayer is not an authorization boundary. Anyone with gas can call `claim` d
 - Native payouts use a limited-gas call; ERC20 payouts use OpenZeppelin `SafeERC20`.
 - `claim` is `nonReentrant` and `whenNotPaused`.
 
-When changing claim semantics, update both contract tests in `contracts/test/` and TypeScript parity tests in `shared/test/`.
-
-## Shared Package
-
-`shared/src/` is the boundary between contract, relayer, skill scripts, and tests:
-
-- `constants.ts`: proof version, PoW version hash, native token address.
-- `pow.ts`: canonical digest and target check.
-- `schema.ts`: strict proof JSON parsing and address/token normalization.
-- `deployments.ts`: deployment index parsing and lookup.
-- `abi.ts`: faucet ABI used by the relayer and scripts.
-- `index.ts`: public exports.
-
-Keep schema parsing strict at the proof boundary. `debug` fields in proof JSON are optional and non-authoritative.
+When changing claim semantics, update both contract tests in `contracts/test/` and TypeScript digest/proof tests in `skills/agent-faucet/test/` and `serverless/test/`.
 
 ## Serverless Architecture
 
@@ -73,6 +59,8 @@ Keep schema parsing strict at the proof boundary. `debug` fields in proof JSON a
 - `handleHealth(env)` validates env and returns deployment identity.
 - `handleClaim(request, env, clients?)` validates HTTP method, content type, body size, proof shape, and configured deployment.
 - `createClients(env)` builds Viem public and wallet clients from `FAUCET_CHAIN_ID`, `FAUCET_ADDRESS`, `RPC_URL`, and `RELAYER_PRIVATE_KEY`.
+- `serverless/src/proof.ts` strictly parses proof JSON at the relayer boundary. `debug` fields are optional and non-authoritative.
+- `serverless/src/AgentFaucet.abi.json` is the tracked ABI extracted from the compiled Foundry artifact. Run `bun run abi:check` after `forge build` to detect ABI drift, and `bun run abi:update` to refresh it intentionally.
 
 Adapters:
 
@@ -107,7 +95,7 @@ This is not currently a React/Vite app.
 Run all TypeScript tests:
 
 ```bash
-bun test shared/test serverless/test skills/agent-faucet/test
+bun test test/all.test.ts
 ```
 
 Equivalent root script:
@@ -137,7 +125,8 @@ bun serverless/src/bun-server.ts
 ## Change Guidelines
 
 - Keep Solidity and TypeScript digest encoding synchronized.
-- Keep proof JSON stable unless also updating `docs/design/proof.md`, `shared/src/schema.ts`, relayer handling, skill scripts, and tests.
+- Keep proof JSON stable unless also updating `docs/design/proof.md`, `serverless/src/proof.ts`, skill scripts, and tests.
+- Keep `serverless/src/AgentFaucet.abi.json` synchronized with `contracts/out/AgentFaucet.sol/AgentFaucet.json` using `bun run abi:check`.
 - Treat `docs/design/proof.md` as the protocol source of truth for security-sensitive behavior.
 - Avoid editing `lib/` vendored dependencies and generated `contracts/out/` artifacts as part of normal feature work.
 - Do not make the relayer responsible for security decisions that the contract must enforce.

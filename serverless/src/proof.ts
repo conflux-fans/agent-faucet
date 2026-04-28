@@ -1,6 +1,8 @@
-import { getAddress, isAddress, type Address, type Hex } from "viem";
+import { getAddress, isAddress, zeroAddress, type Address } from "viem";
 import { z } from "zod";
-import { NATIVE_TOKEN_ADDRESS, PROOF_VERSION } from "./constants";
+
+export const PROOF_VERSION = 1;
+export const NATIVE_TOKEN_ADDRESS = zeroAddress;
 
 const decimalString = z.string().regex(/^(0|[1-9][0-9]*)$/);
 const hexString = z.string().regex(/^0x[0-9a-fA-F]*$/);
@@ -88,32 +90,4 @@ export function parseProofFile(input: unknown): ParsedProof {
     },
     raw,
   };
-}
-
-export function normalizeToken(value: string): Address {
-  if (value === "native") {
-    return NATIVE_TOKEN_ADDRESS;
-  }
-  if (!isAddress(value, { strict: false })) {
-    throw new Error(`Invalid token address: ${value}`);
-  }
-  return getAddress(value);
-}
-
-export function normalizeAddress(value: string, label = "address"): Address {
-  if (!isAddress(value, { strict: false })) {
-    throw new Error(`Invalid ${label}: ${value}`);
-  }
-  return getAddress(value);
-}
-
-export function bigintToDecimal(value: bigint): string {
-  return value.toString(10);
-}
-
-export function bigintToHex(value: bigint): Hex {
-  if (value < 0n || value > (1n << 256n) - 1n) {
-    throw new Error("Value does not fit uint256");
-  }
-  return `0x${value.toString(16)}` as Hex;
 }

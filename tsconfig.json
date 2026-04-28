@@ -7,9 +7,6 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": ["bun"],
-    "baseUrl": ".",
-    "paths": {
-      "@agent-faucet/shared": ["shared/src/index.ts"]
-    }
+    "resolveJsonModule": true
   }
 }

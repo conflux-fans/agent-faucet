@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { computeDigest as sharedComputeDigest } from "@agent-faucet/shared";
 import { computeProof } from "../scripts/compute-proof";
 import { NATIVE_TOKEN_ADDRESS } from "../scripts/lib/evm";
 import { keccak256Hex } from "../scripts/lib/keccak";
@@ -55,7 +54,7 @@ describe("skill scripts", () => {
     expect(keccak256Hex(new Uint8Array())).toBe("0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470");
   });
 
-  test("local digest matches shared viem-backed digest", () => {
+  test("local digest matches canonical vector", () => {
     const input = {
       chainId: 31337n,
       faucetAddress: deployment.faucetAddress,
@@ -63,10 +62,10 @@ describe("skill scripts", () => {
       token: NATIVE_TOKEN_ADDRESS,
       entropyBlockNumber: 992n,
       entropyBlockHash: "0x1111111111111111111111111111111111111111111111111111111111111111" as const,
-      nonce: 0n,
+      nonce: 7n,
     };
 
-    expect(computeDigest(input)).toBe(sharedComputeDigest(input));
+    expect(computeDigest(input)).toBe("0x289c9202cf66356526b88eced5e46dea4884e08cb8a316457b98f043e27f8b71");
   });
 
   test("read-config returns output shape", async () => {

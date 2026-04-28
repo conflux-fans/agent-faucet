@@ -165,7 +165,7 @@ JSON validation should use strict canonical input rules:
 - `debug` is optional. Unknown fields inside `debug` are allowed.
 - Unknown top-level fields or unknown fields inside `challenge` and `proof` should be rejected by the stable schema.
 
-The shared TypeScript module should expose one parser that normalizes these values into typed internal values before hashing, simulation, or submission.
+TypeScript consumers should expose strict parsers that normalize these values into typed internal values before hashing, simulation, or submission. The relayer parser lives in `serverless/src/proof.ts`; the installable skill keeps its local parser under `skills/agent-faucet/scripts/lib/`.
 
 ## Entropy Window
 
@@ -377,7 +377,7 @@ The first implementation must test:
 - TypeScript digest matches Solidity digest for the same inputs.
 - Reentrant native recipient cannot claim again during transfer.
 
-The shared module and contract tests should include at least one complete test vector:
+The TypeScript digest tests and contract tests should include at least one complete test vector:
 
 - `version`
 - `challenge`
@@ -387,7 +387,7 @@ The shared module and contract tests should include at least one complete test v
 - target value
 - expected validity result
 
-The exact test vector should be generated once the shared hashing module exists and then kept stable as a regression fixture.
+The exact test vector should be kept stable as a regression fixture.
 
 These tests are the minimum needed to prove the design's core safety properties.
 

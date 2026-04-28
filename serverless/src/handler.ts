@@ -1,6 +1,7 @@
-import { faucetAbi, parseProofFile } from "@agent-faucet/shared";
 import { createPublicClient, createWalletClient, defineChain, getAddress, http, isAddress, type Address } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { faucetAbi } from "./abi";
+import { parseProofFile } from "./proof";
 
 export interface Env {
   FAUCET_CHAIN_ID: string;
