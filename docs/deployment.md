@@ -138,14 +138,15 @@ Expected response:
 
 ## 5. Update the Skill Deployment Index
 
-Update `skills/agent-faucet/deployments.json` with the deployed chain, faucet address, and Vercel claim URL:
+Update `skills/agent-faucet/deployments.json` with the deployed chain, faucet address, Vercel claim URL, and block explorer URL:
 
 ```json
 {
   "chainId": "71",
   "chainName": "Conflux eSpace Testnet",
   "faucetAddress": "0x...",
-  "serverlessUrl": "https://<vercel-deployment>/api/claim"
+  "serverlessUrl": "https://<vercel-deployment>/api/claim",
+  "scanUrl": "https://evmtestnet.confluxscan.org"
 }
 ```
 

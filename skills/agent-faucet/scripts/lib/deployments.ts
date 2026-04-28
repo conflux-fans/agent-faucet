@@ -5,6 +5,7 @@ export interface Deployment {
   chainName: string;
   faucetAddress: Address;
   serverlessUrl: string;
+  scanUrl: string;
 }
 
 export async function loadDeployments(path = new URL("../../deployments.json", import.meta.url)): Promise<unknown> {
@@ -23,21 +24,24 @@ export function parseDeploymentsFile(input: unknown): Deployment[] {
     const chainName = requireString(deployment.chainName, `deployments[${index}].chainName`);
     const faucetAddress = requireString(deployment.faucetAddress, `deployments[${index}].faucetAddress`);
     const serverlessUrl = requireString(deployment.serverlessUrl, `deployments[${index}].serverlessUrl`);
+    const scanUrl = requireString(deployment.scanUrl, `deployments[${index}].scanUrl`);
     if (chainName.length === 0) {
       throw new Error(`deployments[${index}].chainName is required`);
     }
-    try {
-      new URL(serverlessUrl);
-    } catch {
-      throw new Error(`Invalid deployments[${index}].serverlessUrl`);
-    }
+    requireUrl(serverlessUrl, `deployments[${index}].serverlessUrl`);
+    requireUrl(scanUrl, `deployments[${index}].scanUrl`);
     return {
       chainId: parseUint(chainId, `deployments[${index}].chainId`),
       chainName,
       faucetAddress: normalizeAddress(faucetAddress, `deployments[${index}].faucetAddress`),
       serverlessUrl,
+      scanUrl,
     };
   });
+}
+
+export function transactionScanUrl(deployment: Deployment, txHash: string): string {
+  return `${deployment.scanUrl.replace(/\/+$/, "")}/tx/${txHash}`;
 }
 
 export async function getDeployment(chainId: bigint) {
@@ -61,4 +65,12 @@ function requireString(value: unknown, label: string): string {
     throw new Error(`${label} must be a string`);
   }
   return value;
+}
+
+function requireUrl(value: string, label: string): void {
+  try {
+    new URL(value);
+  } catch {
+    throw new Error(`Invalid ${label}`);
+  }
 }

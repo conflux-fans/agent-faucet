@@ -1,5 +1,5 @@
 import { parseArgs } from "./lib/args";
-import { findDeployment, loadDeployments, parseDeploymentsFile } from "./lib/deployments";
+import { findDeployment, loadDeployments, parseDeploymentsFile, transactionScanUrl } from "./lib/deployments";
 import { main } from "./lib/json";
 import { parseProofFile } from "./lib/proof";
 
@@ -26,9 +26,19 @@ export async function submitClaim(
   });
 
   const body = await response.json();
+  if (isRecord(body) && typeof body.txHash === "string") {
+    return {
+      ...body,
+      scanTxUrl: transactionScanUrl(deployment, body.txHash),
+    };
+  }
   return body;
 }
 
 if (import.meta.main) {
   await main(() => submitClaim(Bun.argv.slice(2)));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

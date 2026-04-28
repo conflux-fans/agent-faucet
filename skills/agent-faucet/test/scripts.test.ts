@@ -13,6 +13,7 @@ const deployment = {
   chainName: "Local",
   faucetAddress: "0x1000000000000000000000000000000000000000" as const,
   serverlessUrl: "http://127.0.0.1:3000/api/claim",
+  scanUrl: "http://127.0.0.1:8545",
 };
 
 const fakeCast = async (args: string[]) => {
@@ -105,7 +106,7 @@ describe("skill scripts", () => {
       },
     });
 
-    expect(result).toEqual({ ok: true, txHash: "0xabc" });
+    expect(result).toEqual({ ok: true, txHash: "0xabc", scanTxUrl: "http://127.0.0.1:8545/tx/0xabc" });
   });
 });
 
@@ -115,5 +116,6 @@ function deploymentForJson() {
     chainName: deployment.chainName,
     faucetAddress: deployment.faucetAddress,
     serverlessUrl: deployment.serverlessUrl,
+    scanUrl: deployment.scanUrl,
   };
 }
