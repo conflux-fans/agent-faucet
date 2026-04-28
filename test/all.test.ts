@@ -1,3 +1,3 @@
 import "../shared/test/shared.test";
 import "../serverless/test/handler.test";
-import "../skill/test/scripts.test";
+import "../skills/agent-faucet/test/scripts.test";

@@ -1,8 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { NATIVE_TOKEN_ADDRESS } from "@agent-faucet/shared";
+import { computeDigest as sharedComputeDigest } from "@agent-faucet/shared";
 import { computeProof } from "../scripts/compute-proof";
+import { NATIVE_TOKEN_ADDRESS } from "../scripts/lib/evm";
+import { keccak256Hex } from "../scripts/lib/keccak";
+import { computeDigest } from "../scripts/lib/pow";
 import { readConfig } from "../scripts/read-config";
 import { submitClaim } from "../scripts/submit-claim";
+
+const maxUint256 = (1n << 256n) - 1n;
 
 const deployment = {
   chainId: 31337n,
@@ -11,35 +16,27 @@ const deployment = {
   serverlessUrl: "http://127.0.0.1:3000/api/claim",
 };
 
-const fakeClient = {
-  readContract: async ({ functionName }: { functionName: string }) => {
-    if (functionName === "getGlobalConfig") {
-      return {
-        minEntropyAgeBlocks: 8,
-        maxEntropyAgeBlocks: 45,
-        defaultCooldownBlocks: 86400,
-        nativeTransferGasLimit: 30000,
-        defaultAmount: 1n,
-        defaultTarget: (1n << 256n) - 1n,
-      };
+const fakeCast = async (args: string[]) => {
+  if (args[0] === "block-number") {
+    return "1000";
+  }
+  if (args[0] === "block") {
+    expect(args[1]).toBe("992");
+    return "0x1111111111111111111111111111111111111111111111111111111111111111";
+  }
+  if (args[0] === "call") {
+    const signature = args[2];
+    if (signature.startsWith("getGlobalConfig")) {
+      return `(8, 45, 86400, 30000, 1, ${maxUint256})`;
     }
-    if (functionName === "getEffectiveTokenConfig") {
-      return {
-        enabled: true,
-        amount: 1n,
-        target: (1n << 256n) - 1n,
-        cooldownBlocks: 86400,
-      };
+    if (signature.startsWith("getEffectiveTokenConfig")) {
+      return `(true, 1, ${maxUint256}, 86400)`;
     }
-    if (functionName === "nextClaimBlock") {
-      return 0n;
+    if (signature.startsWith("nextClaimBlock")) {
+      return "0";
     }
-    throw new Error(`Unexpected read ${functionName}`);
-  },
-  getBlockNumber: async () => 1000n,
-  getBlock: async () => ({
-    hash: "0x1111111111111111111111111111111111111111111111111111111111111111" as const,
-  }),
+  }
+  throw new Error(`Unexpected cast args: ${args.join(" ")}`);
 };
 
 const argv = [
@@ -54,8 +51,26 @@ const argv = [
 ];
 
 describe("skill scripts", () => {
+  test("vendored keccak computes Ethereum Keccak-256", () => {
+    expect(keccak256Hex(new Uint8Array())).toBe("0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470");
+  });
+
+  test("local digest matches shared viem-backed digest", () => {
+    const input = {
+      chainId: 31337n,
+      faucetAddress: deployment.faucetAddress,
+      recipient: "0x2000000000000000000000000000000000000000" as const,
+      token: NATIVE_TOKEN_ADDRESS,
+      entropyBlockNumber: 992n,
+      entropyBlockHash: "0x1111111111111111111111111111111111111111111111111111111111111111" as const,
+      nonce: 0n,
+    };
+
+    expect(computeDigest(input)).toBe(sharedComputeDigest(input));
+  });
+
   test("read-config returns output shape", async () => {
-    const result = await readConfig(argv, { deployment, client: fakeClient });
+    const result = await readConfig(argv, { deployment, cast: fakeCast });
 
     expect(result.ok).toBe(true);
     expect(result.deployment).toEqual(deployment);
@@ -64,11 +79,11 @@ describe("skill scripts", () => {
   });
 
   test("compute-proof requires confirmation", async () => {
-    await expect(computeProof(argv, { deployment, client: fakeClient })).rejects.toThrow("--confirm-compute");
+    await expect(computeProof(argv, { deployment, cast: fakeCast })).rejects.toThrow("--confirm-compute");
   });
 
   test("compute-proof returns proof schema and debug", async () => {
-    const result = await computeProof(["--confirm-compute", ...argv], { deployment, client: fakeClient });
+    const result = await computeProof(["--confirm-compute", ...argv], { deployment, cast: fakeCast });
 
     expect(result.version).toBe(1);
     expect(result.challenge.entropyBlockNumber).toBe("992");
@@ -78,7 +93,7 @@ describe("skill scripts", () => {
   });
 
   test("submit-claim posts proof and returns serverless JSON", async () => {
-    const proof = await computeProof(["--confirm-compute", ...argv], { deployment, client: fakeClient });
+    const proof = await computeProof(["--confirm-compute", ...argv], { deployment, cast: fakeCast });
 
     const result = await submitClaim([], {
       proofJson: proof,

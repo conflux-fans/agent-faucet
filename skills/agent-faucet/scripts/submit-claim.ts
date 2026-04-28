@@ -1,5 +1,7 @@
-import { findDeployment, parseDeploymentsFile, parseProofFile } from "@agent-faucet/shared";
-import { loadDeployments, main, parseArgs } from "./common";
+import { parseArgs } from "./lib/args";
+import { findDeployment, loadDeployments, parseDeploymentsFile } from "./lib/deployments";
+import { main } from "./lib/json";
+import { parseProofFile } from "./lib/proof";
 
 export async function submitClaim(
   argv: string[],

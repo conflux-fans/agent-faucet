@@ -7,6 +7,13 @@ description: Claim native or configured ERC20 test tokens from Agent Faucet depl
 
 Use this skill when an agent needs bootstrap native token for gas or a known ERC20 test token from an Agent Faucet deployment.
 
+## Requirements
+
+- Bun
+- Foundry `cast`
+
+See `reference/install-requirements.md` for installation and verification commands.
+
 ## Workflow
 
 1. Run `read-config.ts` to inspect the configured faucet and token.
@@ -18,15 +25,15 @@ Native token uses `native` or `0x0000000000000000000000000000000000000000`. ERC2
 ## Commands
 
 ```bash
-bun skill/scripts/read-config.ts --chain-id 31337 --rpc-url http://127.0.0.1:8545 --recipient 0x... --token native
+bun skills/agent-faucet/scripts/read-config.ts --chain-id 31337 --rpc-url http://127.0.0.1:8545 --recipient 0x... --token native
 ```
 
 ```bash
-bun skill/scripts/compute-proof.ts --confirm-compute --chain-id 31337 --rpc-url http://127.0.0.1:8545 --recipient 0x... --token native
+bun skills/agent-faucet/scripts/compute-proof.ts --confirm-compute --chain-id 31337 --rpc-url http://127.0.0.1:8545 --recipient 0x... --token native
 ```
 
 ```bash
-bun skill/scripts/submit-claim.ts --proof proof.json
+bun skills/agent-faucet/scripts/submit-claim.ts --proof proof.json
 ```
 
 `compute-proof.ts` prints the proof JSON to stdout. Save it to a file only after the user confirms they want to spend local compute.

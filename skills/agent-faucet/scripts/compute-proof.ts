@@ -1,7 +1,9 @@
-import { bigintToHex, computeDigest, faucetAbi, satisfiesTarget } from "@agent-faucet/shared";
-import { createClient, getDeployment, main, parseArgs, parseCommonArgs } from "./common";
+import { CastRunner, readBlockHash, readGlobalConfig, readLatestBlockNumber, readTokenConfig, runCast } from "./lib/cast";
+import { Deployment, getDeployment } from "./lib/deployments";
+import { bigintToHex, computeDigest, satisfiesTarget } from "./lib/pow";
+import { main, parseArgs, parseCommonArgs } from "./common";
 
-export async function computeProof(argv: string[], deps?: { deployment?: Awaited<ReturnType<typeof getDeployment>>; client?: any }) {
+export async function computeProof(argv: string[], deps?: { deployment?: Deployment; cast?: CastRunner }) {
   const rawArgs = parseArgs(argv);
   if (rawArgs["confirm-compute"] !== true) {
     throw new Error("Refusing to compute proof without --confirm-compute");
@@ -10,17 +12,12 @@ export async function computeProof(argv: string[], deps?: { deployment?: Awaited
   const args = parseCommonArgs(argv);
   const maxAttempts = typeof rawArgs["max-attempts"] === "string" ? BigInt(rawArgs["max-attempts"]) : 10_000_000n;
   const deployment = deps?.deployment ?? (await getDeployment(args.chainId));
-  const client = deps?.client ?? createClient(args.chainId, args.rpcUrl);
+  const cast = deps?.cast ?? runCast;
 
   const [globalConfig, tokenConfig, latestBlockNumber] = await Promise.all([
-    client.readContract({ address: deployment.faucetAddress, abi: faucetAbi, functionName: "getGlobalConfig" }),
-    client.readContract({
-      address: deployment.faucetAddress,
-      abi: faucetAbi,
-      functionName: "getEffectiveTokenConfig",
-      args: [args.token],
-    }),
-    client.getBlockNumber(),
+    readGlobalConfig(cast, args.rpcUrl, deployment.faucetAddress),
+    readTokenConfig(cast, args.rpcUrl, deployment.faucetAddress, args.token),
+    readLatestBlockNumber(cast, args.rpcUrl),
   ]);
 
   if (!tokenConfig.enabled) {
@@ -28,10 +25,7 @@ export async function computeProof(argv: string[], deps?: { deployment?: Awaited
   }
 
   const entropyBlockNumber = latestBlockNumber - BigInt(globalConfig.minEntropyAgeBlocks);
-  const entropyBlock = await client.getBlock({ blockNumber: entropyBlockNumber });
-  if (!entropyBlock.hash) {
-    throw new Error("Entropy block hash is unavailable");
-  }
+  const entropyBlockHash = await readBlockHash(cast, args.rpcUrl, entropyBlockNumber);
 
   const startedAt = Date.now();
   let attempts = 0n;
@@ -43,7 +37,7 @@ export async function computeProof(argv: string[], deps?: { deployment?: Awaited
       recipient: args.recipient,
       token: args.token,
       entropyBlockNumber,
-      entropyBlockHash: entropyBlock.hash,
+      entropyBlockHash,
       nonce,
     });
     if (satisfiesTarget(digest, tokenConfig.target)) {
@@ -61,7 +55,7 @@ export async function computeProof(argv: string[], deps?: { deployment?: Awaited
         },
         debug: {
           latestBlockNumber: latestBlockNumber.toString(),
-          entropyBlockHash: entropyBlock.hash,
+          entropyBlockHash,
           digest,
           target: bigintToHex(tokenConfig.target),
           attempts: attempts.toString(),
