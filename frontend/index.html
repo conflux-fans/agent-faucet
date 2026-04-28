@@ -20,11 +20,12 @@
         </h1>
         <p class="lede">
           <span lang="en">
-            Agent Faucet lets agents request native gas token or a known ERC20 test token without using a browser faucet,
-            wallet UI, CAPTCHA, or social login.
+            Agent Faucet is a repo-backed skill that lets agents request native gas token or a known ERC20 test token
+            without using a browser faucet, wallet UI, CAPTCHA, or social login.
           </span>
           <span lang="zh-CN">
-            Agent Faucet 让 Agent 可以脚本化领取 native gas token 或已知 ERC20 测试币，不需要浏览器 faucet、钱包 UI、验证码或社交登录。
+            Agent Faucet 是一个可从仓库安装的 Skill，让 Agent 可以脚本化领取 native gas token 或已知 ERC20 测试币，
+            不需要浏览器 faucet、钱包 UI、验证码或社交登录。
           </span>
         </p>
         <a href="#install" class="primary-action">
@@ -39,15 +40,46 @@
           <span lang="zh-CN">安装</span>
         </p>
         <h2 id="install-title">
-          <span lang="en">Install the Skill</span>
-          <span lang="zh-CN">安装 Skill</span>
+          <span lang="en">Two Ways to Install</span>
+          <span lang="zh-CN">两种安装方式</span>
         </h2>
-        <pre><code><span lang="en">Skill Path: skills/agent-faucet
-Requirements: Bun and Foundry cast</span><span lang="zh-CN">Skill 路径：skills/agent-faucet
-运行要求：Bun 和 Foundry cast</span></code></pre>
+        <div class="install-options">
+          <article class="install-option">
+            <h3>
+              <span lang="en">Send the Skill to your agent</span>
+              <span lang="zh-CN">把 Skill 文件发给 Agent</span>
+            </h3>
+            <p>
+              <span lang="en">
+                Share the repository's <code>skills/agent-faucet</code> folder with your agent. It contains
+                <code>SKILL.md</code>, scripts, references, and the deployment index.
+              </span>
+              <span lang="zh-CN">
+                把仓库里的 <code>skills/agent-faucet</code> 文件夹交给你的 Agent。里面包含
+                <code>SKILL.md</code>、脚本、参考文档和部署索引。
+              </span>
+            </p>
+            <pre><code>https://github.com/conflux-fans/agent-faucet/tree/main/skills/agent-faucet</code></pre>
+          </article>
+          <article class="install-option">
+            <h3>
+              <span lang="en">Install with Vercel Skills CLI</span>
+              <span lang="zh-CN">用 Vercel Skills CLI 安装</span>
+            </h3>
+            <p>
+              <span lang="en">
+                Use the <code>npx skills</code> installer when your agent supports the open agent skills format.
+              </span>
+              <span lang="zh-CN">
+                如果你的 Agent 支持开放的 agent skills 格式，可以用 <code>npx skills</code> 安装器直接安装。
+              </span>
+            </p>
+            <pre><code>npx skills add https://github.com/conflux-fans/agent-faucet --skill agent-faucet</code></pre>
+          </article>
+        </div>
         <p class="note">
-          <span lang="en">Requirement Setup: <code>skills/agent-faucet/reference/install-requirements.md</code></span>
-          <span lang="zh-CN">依赖安装：<code>skills/agent-faucet/reference/install-requirements.md</code></span>
+          <span lang="en">Runtime requirements: Bun and Foundry <code>cast</code>. Setup details live in <code>skills/agent-faucet/reference/install-requirements.md</code>.</span>
+          <span lang="zh-CN">运行要求：Bun 和 Foundry <code>cast</code>。安装细节见 <code>skills/agent-faucet/reference/install-requirements.md</code>。</span>
         </p>
       </section>
     </main>

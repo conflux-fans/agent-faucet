@@ -92,6 +92,13 @@ h2 {
   max-width: 16ch;
 }
 
+h3 {
+  margin: 0;
+  color: #f4f1e8;
+  font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+  line-height: 1.2;
+}
+
 .lede {
   margin: 1.5rem 0 2rem;
   color: #cbc6b9;
@@ -138,16 +145,37 @@ code {
 }
 
 .install pre {
-  margin-top: 2rem;
+  margin-top: 1rem;
   padding: clamp(1rem, 2vw, 1.5rem);
-  max-width: 72rem;
   border-left: 3px solid #f0c36a;
   background: rgba(0, 0, 0, 0.3);
 }
 
+.install-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  max-width: 72rem;
+  margin-top: 2rem;
+}
+
+.install-option {
+  min-width: 0;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid rgba(244, 241, 232, 0.12);
+  border-radius: 8px;
+  background: rgba(244, 241, 232, 0.035);
+}
+
+.install-option p {
+  margin: 0.85rem 0 0;
+  color: #cbc6b9;
+  line-height: 1.55;
+}
+
 .note {
   max-width: 44rem;
-  margin: 1rem 0 0;
+  margin: 1.25rem 0 0;
   color: #cbc6b9;
   line-height: 1.55;
 }
@@ -177,5 +205,9 @@ code {
 
   h1 {
     max-width: 10ch;
+  }
+
+  .install-options {
+    grid-template-columns: 1fr;
   }
 }
