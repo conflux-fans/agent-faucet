@@ -3,6 +3,7 @@ import { Address, normalizeAddress, parseUint } from "./evm";
 export interface Deployment {
   chainId: bigint;
   chainName: string;
+  rpcUrls: string[];
   faucetAddress: Address;
   serverlessUrl: string;
   scanUrl: string;
@@ -22,17 +23,23 @@ export function parseDeploymentsFile(input: unknown): Deployment[] {
     }
     const chainId = requireString(deployment.chainId, `deployments[${index}].chainId`);
     const chainName = requireString(deployment.chainName, `deployments[${index}].chainName`);
+    const rpcUrls = requireStringArray(deployment.rpcUrls, `deployments[${index}].rpcUrls`);
     const faucetAddress = requireString(deployment.faucetAddress, `deployments[${index}].faucetAddress`);
     const serverlessUrl = requireString(deployment.serverlessUrl, `deployments[${index}].serverlessUrl`);
     const scanUrl = requireString(deployment.scanUrl, `deployments[${index}].scanUrl`);
     if (chainName.length === 0) {
       throw new Error(`deployments[${index}].chainName is required`);
     }
+    if (rpcUrls.length === 0) {
+      throw new Error(`deployments[${index}].rpcUrls must not be empty`);
+    }
+    rpcUrls.forEach((rpcUrl, rpcIndex) => requireUrl(rpcUrl, `deployments[${index}].rpcUrls[${rpcIndex}]`));
     requireUrl(serverlessUrl, `deployments[${index}].serverlessUrl`);
     requireUrl(scanUrl, `deployments[${index}].scanUrl`);
     return {
       chainId: parseUint(chainId, `deployments[${index}].chainId`),
       chainName,
+      rpcUrls,
       faucetAddress: normalizeAddress(faucetAddress, `deployments[${index}].faucetAddress`),
       serverlessUrl,
       scanUrl,
@@ -42,6 +49,10 @@ export function parseDeploymentsFile(input: unknown): Deployment[] {
 
 export function transactionScanUrl(deployment: Deployment, txHash: string): string {
   return `${deployment.scanUrl.replace(/\/+$/, "")}/tx/${txHash}`;
+}
+
+export function defaultRpcUrl(deployment: Deployment): string {
+  return deployment.rpcUrls[0];
 }
 
 export async function getDeployment(chainId: bigint) {
@@ -65,6 +76,13 @@ function requireString(value: unknown, label: string): string {
     throw new Error(`${label} must be a string`);
   }
   return value;
+}
+
+function requireStringArray(value: unknown, label: string): string[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`${label} must be an array`);
+  }
+  return value.map((item, index) => requireString(item, `${label}[${index}]`));
 }
 
 function requireUrl(value: string, label: string): void {

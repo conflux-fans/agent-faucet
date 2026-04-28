@@ -1,5 +1,5 @@
 import { CastRunner, readBlockHash, readGlobalConfig, readLatestBlockNumber, readTokenConfig, runCast } from "./lib/cast";
-import { Deployment, getDeployment } from "./lib/deployments";
+import { defaultRpcUrl, Deployment, getDeployment } from "./lib/deployments";
 import { bigintToHex, computeDigest, satisfiesTarget } from "./lib/pow";
 import { main, parseArgs, parseCommonArgs } from "./common";
 
@@ -9,9 +9,13 @@ export async function computeProof(argv: string[], deps?: { deployment?: Deploym
     throw new Error("Refusing to compute proof without --confirm-compute");
   }
 
-  const args = parseCommonArgs(argv);
+  const chainIdText = rawArgs["chain-id"];
+  if (typeof chainIdText !== "string") {
+    throw new Error("--chain-id is required");
+  }
   const maxAttempts = typeof rawArgs["max-attempts"] === "string" ? BigInt(rawArgs["max-attempts"]) : 10_000_000n;
-  const deployment = deps?.deployment ?? (await getDeployment(args.chainId));
+  const deployment = deps?.deployment ?? (await getDeployment(BigInt(chainIdText)));
+  const args = parseCommonArgs(argv, { rpcUrl: defaultRpcUrl(deployment) });
   const cast = deps?.cast ?? runCast;
 
   const [globalConfig, tokenConfig, latestBlockNumber] = await Promise.all([

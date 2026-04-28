@@ -11,6 +11,7 @@ const maxUint256 = (1n << 256n) - 1n;
 const deployment = {
   chainId: 31337n,
   chainName: "Local",
+  rpcUrls: ["http://127.0.0.1:8545"],
   faucetAddress: "0x1000000000000000000000000000000000000000" as const,
   serverlessUrl: "http://127.0.0.1:3000/api/claim",
   scanUrl: "http://127.0.0.1:8545",
@@ -42,8 +43,6 @@ const fakeCast = async (args: string[]) => {
 const argv = [
   "--chain-id",
   "31337",
-  "--rpc-url",
-  "http://127.0.0.1:8545",
   "--recipient",
   "0x2000000000000000000000000000000000000000",
   "--token",
@@ -114,6 +113,7 @@ function deploymentForJson() {
   return {
     chainId: "31337",
     chainName: deployment.chainName,
+    rpcUrls: deployment.rpcUrls,
     faucetAddress: deployment.faucetAddress,
     serverlessUrl: deployment.serverlessUrl,
     scanUrl: deployment.scanUrl,
