@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,64 +9,69 @@
   <body>
     <main>
       <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Agent Faucet Skill</p>
-          <h1>Bootstrap chain funds without a human faucet.</h1>
-          <p class="lede">
-            A local proof-of-work flow for agents that need native gas token or a known ERC20 test token.
-          </p>
-          <a href="#install" class="primary-action">Install the skill</a>
+        <div class="language-switch" aria-label="Language">
+          <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-set-lang="zh" aria-pressed="false">中文</button>
         </div>
-        <div class="proof-visual" aria-label="Proof workflow preview">
-          <div class="terminal-bar">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <pre><code>$ bun skills/agent-faucet/scripts/read-config.ts
-enabled: true
-target: 0x0000...
-
-$ bun skills/agent-faucet/scripts/compute-proof.ts --confirm-compute
-nonce: 0x6f2a
-digest: 0x0000c9...
-
-$ bun skills/agent-faucet/scripts/submit-claim.ts --proof proof.json
-txHash: 0x8bcc...</code></pre>
-        </div>
-      </section>
-
-      <section class="workflow" aria-labelledby="workflow-title">
-        <div>
-          <p class="section-kicker">What it does</p>
-          <h2 id="workflow-title">Three scripts, one claim path.</h2>
-        </div>
-        <ol>
-          <li>
-            <span>01</span>
-            <strong>Read chain config</strong>
-            <p>Checks the static deployment index, token status, target, and cooldown through RPC.</p>
-          </li>
-          <li>
-            <span>02</span>
-            <strong>Compute proof locally</strong>
-            <p>Runs the only CPU-heavy step after explicit user confirmation.</p>
-          </li>
-          <li>
-            <span>03</span>
-            <strong>Submit through serverless</strong>
-            <p>Posts the proof to a stateless relayer that simulates and returns a transaction hash.</p>
-          </li>
-        </ol>
+        <p class="eyebrow">Agent Faucet Skill</p>
+        <h1>
+          <span lang="en">Claim Test Chain Funds from an Agent Workflow</span>
+          <span lang="zh-CN">让 Agent 在工作流中领取测试链资金</span>
+        </h1>
+        <p class="lede">
+          <span lang="en">
+            Agent Faucet lets agents request native gas token or a known ERC20 test token without using a browser faucet,
+            wallet UI, CAPTCHA, or social login.
+          </span>
+          <span lang="zh-CN">
+            Agent Faucet 让 Agent 可以脚本化领取 native gas token 或已知 ERC20 测试币，不需要浏览器 faucet、钱包 UI、验证码或社交登录。
+          </span>
+        </p>
+        <a href="#install" class="primary-action">
+          <span lang="en">Install the Skill</span>
+          <span lang="zh-CN">安装 Skill</span>
+        </a>
       </section>
 
       <section id="install" class="install" aria-labelledby="install-title">
-        <p class="section-kicker">Install</p>
-        <h2 id="install-title">Add the skill, then run the scripts.</h2>
-        <pre><code>bun skills/agent-faucet/scripts/read-config.ts --chain-id 31337 --rpc-url http://127.0.0.1:8545 --recipient 0x... --token native
-bun skills/agent-faucet/scripts/compute-proof.ts --confirm-compute --chain-id 31337 --rpc-url http://127.0.0.1:8545 --recipient 0x... --token native
-bun skills/agent-faucet/scripts/submit-claim.ts --proof proof.json</code></pre>
+        <p class="section-kicker">
+          <span lang="en">Install</span>
+          <span lang="zh-CN">安装</span>
+        </p>
+        <h2 id="install-title">
+          <span lang="en">Install the Skill</span>
+          <span lang="zh-CN">安装 Skill</span>
+        </h2>
+        <pre><code><span lang="en">Skill Path: skills/agent-faucet
+Requirements: Bun and Foundry cast</span><span lang="zh-CN">Skill 路径：skills/agent-faucet
+运行要求：Bun 和 Foundry cast</span></code></pre>
+        <p class="note">
+          <span lang="en">Requirement Setup: <code>skills/agent-faucet/reference/install-requirements.md</code></span>
+          <span lang="zh-CN">依赖安装：<code>skills/agent-faucet/reference/install-requirements.md</code></span>
+        </p>
       </section>
     </main>
+    <script>
+      const root = document.documentElement;
+      const buttons = document.querySelectorAll("[data-set-lang]");
+      const savedLanguage = localStorage.getItem("agent-faucet-language");
+      const browserLanguage = navigator.language.startsWith("zh") ? "zh" : "en";
+      const initialLanguage = savedLanguage === "zh" || savedLanguage === "en" ? savedLanguage : browserLanguage;
+
+      function setLanguage(language) {
+        root.dataset.lang = language;
+        root.lang = language === "zh" ? "zh-CN" : "en";
+        localStorage.setItem("agent-faucet-language", language);
+        buttons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.setLang === language));
+        });
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => setLanguage(button.dataset.setLang));
+      });
+
+      setLanguage(initialLanguage);
+    </script>
   </body>
 </html>
