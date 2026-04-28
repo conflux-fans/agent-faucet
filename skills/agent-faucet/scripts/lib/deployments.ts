@@ -3,6 +3,7 @@ import { Address, normalizeAddress, parseUint } from "./evm";
 export interface Deployment {
   chainId: bigint;
   chainName: string;
+  rpcUrl: string;
   faucetAddress: Address;
   serverlessUrl: string;
   scanUrl: string;
@@ -22,17 +23,20 @@ export function parseDeploymentsFile(input: unknown): Deployment[] {
     }
     const chainId = requireString(deployment.chainId, `deployments[${index}].chainId`);
     const chainName = requireString(deployment.chainName, `deployments[${index}].chainName`);
+    const rpcUrl = requireString(deployment.rpcUrl, `deployments[${index}].rpcUrl`);
     const faucetAddress = requireString(deployment.faucetAddress, `deployments[${index}].faucetAddress`);
     const serverlessUrl = requireString(deployment.serverlessUrl, `deployments[${index}].serverlessUrl`);
     const scanUrl = requireString(deployment.scanUrl, `deployments[${index}].scanUrl`);
     if (chainName.length === 0) {
       throw new Error(`deployments[${index}].chainName is required`);
     }
+    requireUrl(rpcUrl, `deployments[${index}].rpcUrl`);
     requireUrl(serverlessUrl, `deployments[${index}].serverlessUrl`);
     requireUrl(scanUrl, `deployments[${index}].scanUrl`);
     return {
       chainId: parseUint(chainId, `deployments[${index}].chainId`),
       chainName,
+      rpcUrl,
       faucetAddress: normalizeAddress(faucetAddress, `deployments[${index}].faucetAddress`),
       serverlessUrl,
       scanUrl,

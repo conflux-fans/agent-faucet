@@ -4,6 +4,7 @@
     {
       "chainId": "71",
       "chainName": "Conflux eSpace Testnet",
+      "rpcUrl": "https://evmtestnet.confluxrpc.com",
       "faucetAddress": "0xAEcbc1bd17F65aef2f5965E56bFBFEF283123F9b",
       "serverlessUrl": "https://agent-faucet.vercel.app/api/claim",
       "scanUrl": "https://evmtestnet.confluxscan.org"
