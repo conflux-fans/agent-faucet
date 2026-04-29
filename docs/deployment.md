@@ -36,7 +36,7 @@ defaultAmount            = 10000000000000000
 defaultTarget            = 0x000010c6f7a0b5ed8d36b4c7f34938583621fafc8b0079a2834d26fa3fcc9ea9
 ```
 
-`defaultAmount` is `0.01` native token. The target is approximately `2^256 / 1000000`, so a proof should take about `1000000` digest attempts on average. The time estimates use an M2 Pro single-thread TypeScript proof loop as the baseline: roughly 20 seconds at this target before thread scaling. Multi-threaded estimates are linear projections from that baseline and actual wall-clock time depends on hardware and load.
+`defaultAmount` is `0.01` native token. The target is approximately `2^256 / 1000000`, so a proof should take about `1000000` digest attempts on average. The time estimates use an M2 Pro single-thread TypeScript proof loop as the baseline, and actual wall-clock time depends on hardware, selected thread count, and current load.
 
 To update the current testnet deployment to this target, use the owner key and keep all other config fields unchanged:
 
@@ -176,7 +176,7 @@ bun skills/agent-faucet/scripts/read-config.ts \
 
 Proof computation is CPU-intensive. Ask the operator before running it:
 
-Estimate proof time first. Omit `--threads` to estimate the default all-logical-CPU mode; use `--threads 1` to estimate single-thread mode. Report estimates as M2 Pro single-thread-baseline projections, not guaranteed local runtime.
+Estimate proof time first. Omit `--threads` to estimate the default mode, which uses `ceil(max_cpu / 2)` logical CPU threads. Report estimates as M2 Pro single-thread-baseline projections, not guaranteed local runtime. If the operator wants faster proof search, they may choose a higher `--threads` value, but do not promise a specific speedup.
 
 ```bash
 bun skills/agent-faucet/scripts/estimate-proof-time.ts \
@@ -189,8 +189,7 @@ bun skills/agent-faucet/scripts/compute-proof.ts \
   --confirm-compute \
   --chain-id 71 \
   --recipient 0x... \
-  --token native \
-  --threads 4 > proof.json
+  --token native > proof.json
 ```
 
 Submit the proof through Vercel:

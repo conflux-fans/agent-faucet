@@ -1,7 +1,11 @@
 import { availableParallelism } from "node:os";
 
-export function defaultThreadCount(getAvailableParallelism = availableParallelism): number {
+export function maxThreadCount(getAvailableParallelism = availableParallelism): number {
   return Math.max(1, Math.trunc(getAvailableParallelism()));
+}
+
+export function defaultThreadCount(getAvailableParallelism = availableParallelism): number {
+  return halfThreadCount(maxThreadCount(getAvailableParallelism));
 }
 
 export function parseThreadCount(
@@ -22,5 +26,5 @@ export function parseThreadCount(
 }
 
 export function halfThreadCount(threads: number): number {
-  return Math.max(1, Math.floor(threads / 2));
+  return Math.max(1, Math.ceil(threads / 2));
 }

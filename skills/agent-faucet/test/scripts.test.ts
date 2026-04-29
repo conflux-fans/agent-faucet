@@ -6,7 +6,7 @@ import { NATIVE_TOKEN_ADDRESS } from "../scripts/lib/evm";
 import { keccak256Hex } from "../scripts/lib/keccak";
 import { computeDigest, createDigestComputer } from "../scripts/lib/pow";
 import { searchProofNonce } from "../scripts/lib/proof-search";
-import { parseThreadCount } from "../scripts/lib/threads";
+import { defaultThreadCount, parseThreadCount } from "../scripts/lib/threads";
 import { readConfig } from "../scripts/read-config";
 import { submitClaim } from "../scripts/submit-claim";
 
@@ -90,7 +90,7 @@ describe("skill scripts", () => {
     expect(result.token).toBe(NATIVE_TOKEN_ADDRESS);
   });
 
-  test("estimate-proof-time returns dynamic guidance from token target", async () => {
+  test("estimate-proof-time returns structured estimate from token target", async () => {
     const target = maxUint256 / 100_000n;
     const result = await estimateProofTime(["--chain-id", "31337", "--token", "native"], {
       deployment,
@@ -109,13 +109,13 @@ describe("skill scripts", () => {
     }
     expect(result.difficulty.expectedAttempts).toBe("100000");
     expect(result.difficulty.target).toBe(`0x${target.toString(16)}`);
-    expect(result.threads).toEqual({ selected: 8, allCpu: 8, halfCpu: 4, singleThread: 1 });
-    expect(result.estimate.expectedMs).toBe("250");
-    expect(result.estimates.singleThread.expectedMs).toBe("2000");
+    expect(result.threads).toMatchObject({ selected: 4, default: 4, maxCpu: 8, allCpu: 8, halfCpu: 4, singleThread: 1 });
+    expect(result.estimate.expectedMs).toBe("209");
+    expect(result.estimates.default.expectedMs).toBe("209");
+    expect(result.estimates.maxCpu.expectedMs).toBe("105");
+    expect(result.estimates.singleThread.expectedMs).toBe("834");
     expect(result.baseline.label).toBe("M2 Pro single-thread TypeScript proof loop");
-    expect(result.userGuidance).toContain("M2 Pro single-thread baseline");
-    expect(result.userGuidance).toContain("uses all 8 logical CPUs");
-    expect(result.userGuidance).toContain("1 thread, around 2 seconds");
+    expect(Object.hasOwn(result, "userGuidance")).toBe(false);
   });
 
   test("estimate-proof-time reports 10x target near one million expected attempts", async () => {
@@ -135,7 +135,7 @@ describe("skill scripts", () => {
       throw new Error("Expected proof time estimate to be available");
     }
     expect(result.difficulty.expectedAttempts).toBe("1000000");
-    expect(result.estimate.expectedMs).toBe("20000");
+    expect(result.estimate.expectedMs).toBe("8334");
   });
 
   test("estimateExpectedAttempts handles easy max target", () => {
@@ -187,6 +187,13 @@ describe("skill scripts", () => {
   test("invalid thread count rejects", () => {
     expect(() => parseThreadCount("0")).toThrow("--threads");
     expect(() => parseThreadCount("1.5")).toThrow("--threads");
+  });
+
+  test("default thread count uses half of max CPU rounded up", () => {
+    expect(defaultThreadCount(() => 8)).toBe(4);
+    expect(defaultThreadCount(() => 7)).toBe(4);
+    expect(defaultThreadCount(() => 1)).toBe(1);
+    expect(parseThreadCount(undefined, () => 7)).toBe(4);
   });
 
   test("compute-proof requires confirmation", async () => {

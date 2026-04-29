@@ -2,10 +2,10 @@ import { CastRunner, readTokenConfig, runCast } from "./lib/cast";
 import { defaultRpcUrl, Deployment, getDeployment } from "./lib/deployments";
 import { ceilDiv, estimateExpectedAttempts } from "./lib/difficulty";
 import { Address, Hex, bigintToHex, normalizeToken, parseUint } from "./lib/evm";
-import { defaultThreadCount, halfThreadCount, parseThreadCount } from "./lib/threads";
+import { defaultThreadCount, maxThreadCount, parseThreadCount } from "./lib/threads";
 import { main, parseArgs } from "./common";
 
-const DEFAULT_BASELINE_ATTEMPTS_PER_SECOND = 50_000n;
+const DEFAULT_BASELINE_ATTEMPTS_PER_SECOND = 120_000n;
 const DEFAULT_BASELINE_LABEL = "M2 Pro single-thread TypeScript proof loop";
 
 type ProofTimeEstimate = ReturnType<typeof estimateForThreads>;
@@ -24,7 +24,6 @@ export type EstimateProofTimeResult =
       enabled: false;
       canEstimate: false;
       reason: "TOKEN_DISABLED";
-      userGuidance: string;
     }
   | {
       ok: true;
@@ -38,6 +37,8 @@ export type EstimateProofTimeResult =
       };
       threads: {
         selected: number;
+        default: number;
+        maxCpu: number;
         allCpu: number;
         halfCpu: number;
         singleThread: 1;
@@ -49,11 +50,12 @@ export type EstimateProofTimeResult =
       estimate: ProofTimeEstimate;
       estimates: {
         selected: ProofTimeEstimate;
+        default: ProofTimeEstimate;
+        maxCpu: ProofTimeEstimate;
         allCpu: ProofTimeEstimate;
         halfCpu: ProofTimeEstimate;
         singleThread: ProofTimeEstimate;
       };
-      userGuidance: string;
     };
 
 export async function estimateProofTime(
@@ -77,8 +79,8 @@ export async function estimateProofTime(
     throw new Error("--baseline-attempts-per-second must be greater than 0");
   }
   const getAvailableParallelism = deps?.availableParallelism;
-  const allCpuThreads = defaultThreadCount(getAvailableParallelism);
-  const halfCpuThreads = halfThreadCount(allCpuThreads);
+  const maxCpuThreads = maxThreadCount(getAvailableParallelism);
+  const defaultThreads = defaultThreadCount(getAvailableParallelism);
   const selectedThreads = parseThreadCount(rawArgs.threads, getAvailableParallelism);
 
   const cast = deps?.cast ?? runCast;
@@ -91,15 +93,15 @@ export async function estimateProofTime(
       enabled: false,
       canEstimate: false,
       reason: "TOKEN_DISABLED",
-      userGuidance: "This token is not currently enabled, so proof computation time cannot be estimated.",
     };
   }
 
   const expectedAttempts = estimateExpectedAttempts(tokenConfig.target);
   const selectedEstimate = estimateForThreads(expectedAttempts, baselineAttemptsPerSecond, selectedThreads);
-  const allCpuEstimate = estimateForThreads(expectedAttempts, baselineAttemptsPerSecond, allCpuThreads);
-  const halfCpuEstimate = estimateForThreads(expectedAttempts, baselineAttemptsPerSecond, halfCpuThreads);
+  const defaultEstimate = estimateForThreads(expectedAttempts, baselineAttemptsPerSecond, defaultThreads);
+  const maxCpuEstimate = estimateForThreads(expectedAttempts, baselineAttemptsPerSecond, maxCpuThreads);
   const singleThreadEstimate = estimateForThreads(expectedAttempts, baselineAttemptsPerSecond, 1);
+  const baselineLabel = typeof rawArgs["baseline-label"] === "string" ? rawArgs["baseline-label"] : DEFAULT_BASELINE_LABEL;
 
   return {
     ok: true,
@@ -108,13 +110,15 @@ export async function estimateProofTime(
     enabled: true,
     canEstimate: true,
     baseline: {
-      label: typeof rawArgs["baseline-label"] === "string" ? rawArgs["baseline-label"] : DEFAULT_BASELINE_LABEL,
+      label: baselineLabel,
       attemptsPerSecond: baselineAttemptsPerSecond.toString(),
     },
     threads: {
       selected: selectedThreads,
-      allCpu: allCpuThreads,
-      halfCpu: halfCpuThreads,
+      default: defaultThreads,
+      maxCpu: maxCpuThreads,
+      allCpu: maxCpuThreads,
+      halfCpu: defaultThreads,
       singleThread: 1,
     },
     difficulty: {
@@ -124,11 +128,12 @@ export async function estimateProofTime(
     estimate: selectedEstimate,
     estimates: {
       selected: selectedEstimate,
-      allCpu: allCpuEstimate,
-      halfCpu: halfCpuEstimate,
+      default: defaultEstimate,
+      maxCpu: maxCpuEstimate,
+      allCpu: maxCpuEstimate,
+      halfCpu: defaultEstimate,
       singleThread: singleThreadEstimate,
     },
-    userGuidance: `The recipient can claim now. Before continuing, ask the user to authorize a local anti-abuse computation that will briefly use CPU. The estimates use an M2 Pro single-thread baseline and actual time varies by hardware and load. By default, the script uses all ${allCpuThreads} logical CPUs for parallel acceleration, estimated around ${allCpuEstimate.human}. The user may choose fewer threads, such as half CPU (${halfCpuThreads} threads, around ${halfCpuEstimate.human}) or single-thread mode with no multithread acceleration (1 thread, around ${singleThreadEstimate.human}). Ask which thread count to use.`,
   };
 }
 
