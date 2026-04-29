@@ -6,7 +6,7 @@ import { defaultThreadCount, maxThreadCount, parseThreadCount } from "./lib/thre
 import { main, parseArgs } from "./common";
 
 const DEFAULT_BASELINE_ATTEMPTS_PER_SECOND = 120_000n;
-const DEFAULT_BASELINE_LABEL = "M2 Pro single-thread TypeScript proof loop";
+const DEFAULT_BASELINE_LABEL = "M2 Pro single-thread";
 
 type ProofTimeEstimate = ReturnType<typeof estimateForThreads>;
 

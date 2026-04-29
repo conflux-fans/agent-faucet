@@ -114,7 +114,7 @@ describe("skill scripts", () => {
     expect(result.estimates.default.expectedMs).toBe("209");
     expect(result.estimates.maxCpu.expectedMs).toBe("105");
     expect(result.estimates.singleThread.expectedMs).toBe("834");
-    expect(result.baseline.label).toBe("M2 Pro single-thread TypeScript proof loop");
+    expect(result.baseline.label).toBe("M2 Pro single-thread");
     expect(Object.hasOwn(result, "userGuidance")).toBe(false);
   });
 
