@@ -1,5 +1,5 @@
 import { Address, Hex } from "./evm";
-import { computeDigest, DigestInput, satisfiesTarget } from "./pow";
+import { createDigestComputer, DigestInput, satisfiesPaddedTarget, targetToPaddedHex } from "./pow";
 
 export interface ProofSearchInput extends Omit<DigestInput, "nonce"> {
   target: bigint;
@@ -9,6 +9,7 @@ export interface ProofSearchInput extends Omit<DigestInput, "nonce"> {
   shouldStop?: () => boolean;
   onAttempts?: (attempts: bigint) => void;
   progressInterval?: bigint;
+  stopCheckInterval?: bigint;
   digestFn?: (input: DigestInput) => Hex;
 }
 
@@ -28,10 +29,13 @@ export function searchProofNonce(input: ProofSearchInput): ProofSearchResult {
     throw new Error("step must be greater than 0");
   }
 
-  const digestFn = input.digestFn ?? computeDigest;
+  const computeDigest = input.digestFn ?? createNonceDigest(input);
   const progressInterval = input.progressInterval ?? 0n;
+  const stopCheckInterval = input.shouldStop ? input.stopCheckInterval ?? 4096n : 0n;
+  const paddedTarget = targetToPaddedHex(input.target);
   let attempts = 0n;
   let pendingAttempts = 0n;
+  let attemptsUntilStopCheck = 0n;
 
   const flushAttempts = () => {
     if (pendingAttempts > 0n) {
@@ -41,13 +45,14 @@ export function searchProofNonce(input: ProofSearchInput): ProofSearchResult {
   };
 
   for (let nonce = startNonce; nonce < input.maxAttempts; nonce += step) {
-    if (input.shouldStop?.()) {
+    if (stopCheckInterval > 0n && attemptsUntilStopCheck === 0n && input.shouldStop?.()) {
       break;
     }
+    attemptsUntilStopCheck = stopCheckInterval > 0n ? (attemptsUntilStopCheck + 1n) % stopCheckInterval : 0n;
 
     attempts++;
     pendingAttempts++;
-    const digest = digestFn({
+    const digest = computeDigest({
       chainId: input.chainId,
       faucetAddress: input.faucetAddress as Address,
       recipient: input.recipient as Address,
@@ -57,7 +62,7 @@ export function searchProofNonce(input: ProofSearchInput): ProofSearchResult {
       nonce,
     });
 
-    if (satisfiesTarget(digest, input.target)) {
+    if (satisfiesPaddedTarget(digest, paddedTarget)) {
       flushAttempts();
       return { nonce, digest, attempts };
     }
@@ -69,4 +74,16 @@ export function searchProofNonce(input: ProofSearchInput): ProofSearchResult {
 
   flushAttempts();
   return { nonce: null, digest: null, attempts };
+}
+
+function createNonceDigest(input: Omit<ProofSearchInput, "digestFn">): (digestInput: DigestInput) => Hex {
+  const fastDigest = createDigestComputer({
+    chainId: input.chainId,
+    faucetAddress: input.faucetAddress,
+    recipient: input.recipient,
+    token: input.token,
+    entropyBlockNumber: input.entropyBlockNumber,
+    entropyBlockHash: input.entropyBlockHash,
+  });
+  return (digestInput: DigestInput) => fastDigest(digestInput.nonce);
 }

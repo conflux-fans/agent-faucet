@@ -4,7 +4,7 @@ import { estimateExpectedAttempts, estimateProofTime } from "../scripts/estimate
 import { defaultMaxAttemptsForTarget } from "../scripts/lib/difficulty";
 import { NATIVE_TOKEN_ADDRESS } from "../scripts/lib/evm";
 import { keccak256Hex } from "../scripts/lib/keccak";
-import { computeDigest } from "../scripts/lib/pow";
+import { computeDigest, createDigestComputer } from "../scripts/lib/pow";
 import { searchProofNonce } from "../scripts/lib/proof-search";
 import { parseThreadCount } from "../scripts/lib/threads";
 import { readConfig } from "../scripts/read-config";
@@ -70,6 +70,15 @@ describe("skill scripts", () => {
     };
 
     expect(computeDigest(input)).toBe("0x289c9202cf66356526b88eced5e46dea4884e08cb8a316457b98f043e27f8b71");
+    const digest = createDigestComputer({
+      chainId: input.chainId,
+      faucetAddress: input.faucetAddress,
+      recipient: input.recipient,
+      token: input.token,
+      entropyBlockNumber: input.entropyBlockNumber,
+      entropyBlockHash: input.entropyBlockHash,
+    })(input.nonce);
+    expect(digest).toBe(computeDigest(input));
   });
 
   test("read-config returns output shape", async () => {

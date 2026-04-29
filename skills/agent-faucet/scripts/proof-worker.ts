@@ -14,12 +14,10 @@ interface WorkerData {
   startNonce: string;
   step: string;
   stopBuffer: SharedArrayBuffer;
-  attemptsBuffer: SharedArrayBuffer;
 }
 
 const data = workerData as WorkerData;
 const stopFlag = new Int32Array(data.stopBuffer);
-const attemptsCounter = new BigInt64Array(data.attemptsBuffer);
 
 const result = searchProofNonce({
   chainId: BigInt(data.chainId),
@@ -33,10 +31,7 @@ const result = searchProofNonce({
   startNonce: BigInt(data.startNonce),
   step: BigInt(data.step),
   shouldStop: () => Atomics.load(stopFlag, 0) === 1,
-  onAttempts: (attempts) => {
-    Atomics.add(attemptsCounter, 0, attempts);
-  },
-  progressInterval: 1024n,
+  stopCheckInterval: 4096n,
 });
 
 if (result.nonce !== null && result.digest !== null) {
@@ -45,7 +40,8 @@ if (result.nonce !== null && result.digest !== null) {
     type: "found",
     nonce: result.nonce.toString(),
     digest: result.digest,
+    attempts: result.attempts.toString(),
   });
 } else {
-  parentPort?.postMessage({ type: "done" });
+  parentPort?.postMessage({ type: "done", attempts: result.attempts.toString() });
 }

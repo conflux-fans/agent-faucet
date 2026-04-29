@@ -131,17 +131,16 @@ async function findProof(context: ProofSearchContext, threads: number): Promise<
 
 function findProofWithWorkers(context: ProofSearchContext, threads: number): Promise<FoundProof | null> {
   const stopBuffer = new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT);
-  const attemptsBuffer = new SharedArrayBuffer(BigInt64Array.BYTES_PER_ELEMENT);
-  const attemptsCounter = new BigInt64Array(attemptsBuffer);
   let completedWorkers = 0;
   let found: { nonce: bigint; digest: Hex } | null = null;
+  let attempts = 0n;
   const workers: Worker[] = [];
 
   return new Promise((resolve, reject) => {
     const finishWorker = () => {
       completedWorkers++;
       if (completedWorkers === threads) {
-        resolve(found ? { ...found, attempts: Atomics.load(attemptsCounter, 0) } : null);
+        resolve(found ? { ...found, attempts } : null);
       }
     };
 
@@ -166,11 +165,13 @@ function findProofWithWorkers(context: ProofSearchContext, threads: number): Pro
           startNonce: index.toString(),
           step: threads.toString(),
           stopBuffer,
-          attemptsBuffer,
         },
       });
       workers.push(worker);
-      worker.on("message", (message: { type: string; nonce?: string; digest?: Hex }) => {
+      worker.on("message", (message: { type: string; nonce?: string; digest?: Hex; attempts?: string }) => {
+        if (message.attempts !== undefined) {
+          attempts += BigInt(message.attempts);
+        }
         if (message.type === "found" && message.nonce !== undefined && message.digest !== undefined && found === null) {
           found = { nonce: BigInt(message.nonce), digest: message.digest };
         }
