@@ -355,7 +355,8 @@ Serverless must not rely on `debug`. It should recompute or ask the chain for al
 The skill provides stable Bun + TypeScript scripts:
 
 - `read-config.ts`: Reads chain configuration and claim readiness.
-- `compute-proof.ts`: Computes the PoW proof. This is CPU-intensive and requires user confirmation before running.
+- `estimate-proof-time.ts`: Estimates the current token's proof computation time from its configured difficulty, thread count, and a local baseline. It does not search for a proof and does not require user confirmation.
+- `compute-proof.ts`: Computes the PoW proof. This is CPU-intensive, supports multi-threaded search, and requires user confirmation before running.
 - `submit-claim.ts`: Submits an existing proof to the configured serverless endpoint.
 
 `compute-proof.ts` writes the proof schema described above. `submit-claim.ts` does not recompute proof.

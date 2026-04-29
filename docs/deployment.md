@@ -33,10 +33,20 @@ maxEntropyAgeBlocks      = 255
 defaultCooldownBlocks    = 86400
 nativeTransferGasLimit   = 50000
 defaultAmount            = 10000000000000000
-defaultTarget            = 0x0000a7c5ac471b4784230fcf80dc33721d53cddd6e04c059210385c67dfe32a0
+defaultTarget            = 0x000010c6f7a0b5ed8d36b4c7f34938583621fafc8b0079a2834d26fa3fcc9ea9
 ```
 
-`defaultAmount` is `0.01` native token. The target is approximately `2^256 / 100000`, so a proof should take about `100000` digest attempts on average. As a local benchmark, the current single-threaded TypeScript proof loop finds a proof in roughly 2 seconds on an M2 Pro at this target; treat this as hardware-dependent guidance, not a protocol guarantee.
+`defaultAmount` is `0.01` native token. The target is approximately `2^256 / 1000000`, so a proof should take about `1000000` digest attempts on average. As a local benchmark, the current single-threaded TypeScript proof loop should find a proof in roughly 20 seconds on an M2 Pro at this target; multi-threaded search reduces wall-clock time depending on CPU count. Treat this as hardware-dependent guidance, not a protocol guarantee.
+
+To update the current testnet deployment to this target, use the owner key and keep all other config fields unchanged:
+
+```bash
+cast send 0xAEcbc1bd17F65aef2f5965E56bFBFEF283123F9b \
+  "setGlobalConfig((uint64,uint64,uint64,uint64,uint256,uint256))" \
+  "(8,255,86400,50000,10000000000000000,115792089237316195423570985008687907853269984665640564039457584007913129)" \
+  --rpc-url https://evmtestnet.confluxrpc.com \
+  --private-key "$PRIVATE_KEY"
+```
 
 ## 2. Deploy the Contract
 
@@ -56,7 +66,7 @@ forge create contracts/src/AgentFaucet.sol:AgentFaucet \
   --gas-limit 10000000 \
   --private-key "$PRIVATE_KEY" \
   --constructor-args \
-  "(8,255,86400,50000,10000000000000000,1157920892373161954235709850086879078532699846656405640394575840079131296)" \
+  "(8,255,86400,50000,10000000000000000,115792089237316195423570985008687907853269984665640564039457584007913129)" \
   "$(cast wallet address --private-key "$PRIVATE_KEY")"
 ```
 
@@ -166,12 +176,21 @@ bun skills/agent-faucet/scripts/read-config.ts \
 
 Proof computation is CPU-intensive. Ask the operator before running it:
 
+Estimate proof time first. Omit `--threads` to estimate the default all-logical-CPU mode; use `--threads 1` to estimate single-thread mode.
+
+```bash
+bun skills/agent-faucet/scripts/estimate-proof-time.ts \
+  --chain-id 71 \
+  --token native
+```
+
 ```bash
 bun skills/agent-faucet/scripts/compute-proof.ts \
   --confirm-compute \
   --chain-id 71 \
   --recipient 0x... \
-  --token native > proof.json
+  --token native \
+  --threads 4 > proof.json
 ```
 
 Submit the proof through Vercel:
