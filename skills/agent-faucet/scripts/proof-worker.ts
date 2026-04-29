@@ -14,10 +14,12 @@ interface WorkerData {
   startNonce: string;
   step: string;
   stopBuffer: SharedArrayBuffer;
+  deadlineMs?: number;
 }
 
 const data = workerData as WorkerData;
 const stopFlag = new Int32Array(data.stopBuffer);
+const shouldStop = () => Atomics.load(stopFlag, 0) === 1 || (data.deadlineMs !== undefined && Date.now() >= data.deadlineMs);
 
 const result = searchProofNonce({
   chainId: BigInt(data.chainId),
@@ -30,7 +32,7 @@ const result = searchProofNonce({
   maxAttempts: BigInt(data.maxAttempts),
   startNonce: BigInt(data.startNonce),
   step: BigInt(data.step),
-  shouldStop: () => Atomics.load(stopFlag, 0) === 1,
+  shouldStop,
   stopCheckInterval: 4096n,
 });
 
