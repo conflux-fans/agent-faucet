@@ -1,17 +1,65 @@
 import { CastRunner, readTokenConfig, runCast } from "./lib/cast";
 import { defaultRpcUrl, Deployment, getDeployment } from "./lib/deployments";
 import { ceilDiv, estimateExpectedAttempts } from "./lib/difficulty";
-import { bigintToHex, normalizeToken, parseUint } from "./lib/evm";
+import { Address, Hex, bigintToHex, normalizeToken, parseUint } from "./lib/evm";
 import { defaultThreadCount, halfThreadCount, parseThreadCount } from "./lib/threads";
 import { main, parseArgs } from "./common";
 
 const DEFAULT_BASELINE_ATTEMPTS_PER_SECOND = 50_000n;
 const DEFAULT_BASELINE_LABEL = "M2 Pro single-thread TypeScript proof loop";
 
+type ProofTimeEstimate = ReturnType<typeof estimateForThreads>;
+
+type EstimateProofTimeDeps = {
+  deployment?: Deployment;
+  cast?: CastRunner;
+  availableParallelism?: () => number;
+};
+
+export type EstimateProofTimeResult =
+  | {
+      ok: true;
+      deployment: Deployment;
+      token: Address;
+      enabled: false;
+      canEstimate: false;
+      reason: "TOKEN_DISABLED";
+      userGuidance: string;
+    }
+  | {
+      ok: true;
+      deployment: Deployment;
+      token: Address;
+      enabled: true;
+      canEstimate: true;
+      baseline: {
+        label: string;
+        attemptsPerSecond: string;
+      };
+      threads: {
+        selected: number;
+        allCpu: number;
+        halfCpu: number;
+        singleThread: 1;
+      };
+      difficulty: {
+        expectedAttempts: string;
+        target: Hex;
+      };
+      estimate: ProofTimeEstimate;
+      estimates: {
+        selected: ProofTimeEstimate;
+        allCpu: ProofTimeEstimate;
+        halfCpu: ProofTimeEstimate;
+        singleThread: ProofTimeEstimate;
+      };
+      userGuidance: string;
+    };
+
 export async function estimateProofTime(
   argv: string[],
-  deps?: { deployment?: Deployment; cast?: CastRunner; availableParallelism?: () => number },
-) {
+  deps?: EstimateProofTimeDeps,
+): Promise<EstimateProofTimeResult> {
   const rawArgs = parseArgs(argv);
   const chainIdText = rawArgs["chain-id"];
   if (typeof chainIdText !== "string") {
@@ -43,7 +91,7 @@ export async function estimateProofTime(
       enabled: false,
       canEstimate: false,
       reason: "TOKEN_DISABLED",
-      userGuidanceZh: "这个 token 当前没有启用，暂时不能估算领取计算耗时。",
+      userGuidance: "This token is not currently enabled, so proof computation time cannot be estimated.",
     };
   }
 
@@ -80,7 +128,7 @@ export async function estimateProofTime(
       halfCpu: halfCpuEstimate,
       singleThread: singleThreadEstimate,
     },
-    userGuidanceZh: `可以领取。继续前需要你明确授权我在本机做一次防滥用计算，通常会占用 CPU 一小段时间；默认使用 ${allCpuThreads} 个逻辑 CPU 并行加速，按当前 token 难度和基准机器估算约 ${allCpuEstimate.human}。你也可以指定更少线程，例如使用一半 CPU（${halfCpuThreads} 线程，约 ${halfCpuEstimate.human}）或不用多线程加速（1 线程，约 ${singleThreadEstimate.human}）。实际耗时会随硬件和负载变化。要用多少线程继续？`,
+    userGuidance: `The recipient can claim now. Before continuing, ask the user to authorize a local anti-abuse computation that will briefly use CPU. The estimates use an M2 Pro single-thread baseline and actual time varies by hardware and load. By default, the script uses all ${allCpuThreads} logical CPUs for parallel acceleration, estimated around ${allCpuEstimate.human}. The user may choose fewer threads, such as half CPU (${halfCpuThreads} threads, around ${halfCpuEstimate.human}) or single-thread mode with no multithread acceleration (1 thread, around ${singleThreadEstimate.human}). Ask which thread count to use.`,
   };
 }
 
@@ -110,15 +158,15 @@ function formatHumanDuration(ms: bigint): string {
     return `${ms} ms`;
   }
   if (ms < 60_000n) {
-    return `${formatDecimalSeconds(ms)} 秒`;
+    return `${formatDecimalSeconds(ms)} seconds`;
   }
   const seconds = ceilDiv(ms, 1000n);
   const minutes = seconds / 60n;
   const remainingSeconds = seconds % 60n;
   if (remainingSeconds === 0n) {
-    return `${minutes} 分钟`;
+    return `${minutes} minutes`;
   }
-  return `${minutes} 分 ${remainingSeconds} 秒`;
+  return `${minutes} minutes ${remainingSeconds} seconds`;
 }
 
 if (import.meta.main) {

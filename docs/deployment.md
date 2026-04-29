@@ -36,7 +36,7 @@ defaultAmount            = 10000000000000000
 defaultTarget            = 0x000010c6f7a0b5ed8d36b4c7f34938583621fafc8b0079a2834d26fa3fcc9ea9
 ```
 
-`defaultAmount` is `0.01` native token. The target is approximately `2^256 / 1000000`, so a proof should take about `1000000` digest attempts on average. As a local benchmark, the current single-threaded TypeScript proof loop should find a proof in roughly 20 seconds on an M2 Pro at this target; multi-threaded search reduces wall-clock time depending on CPU count. Treat this as hardware-dependent guidance, not a protocol guarantee.
+`defaultAmount` is `0.01` native token. The target is approximately `2^256 / 1000000`, so a proof should take about `1000000` digest attempts on average. The time estimates use an M2 Pro single-thread TypeScript proof loop as the baseline: roughly 20 seconds at this target before thread scaling. Multi-threaded estimates are linear projections from that baseline and actual wall-clock time depends on hardware and load.
 
 To update the current testnet deployment to this target, use the owner key and keep all other config fields unchanged:
 
@@ -176,7 +176,7 @@ bun skills/agent-faucet/scripts/read-config.ts \
 
 Proof computation is CPU-intensive. Ask the operator before running it:
 
-Estimate proof time first. Omit `--threads` to estimate the default all-logical-CPU mode; use `--threads 1` to estimate single-thread mode.
+Estimate proof time first. Omit `--threads` to estimate the default all-logical-CPU mode; use `--threads 1` to estimate single-thread mode. Report estimates as M2 Pro single-thread-baseline projections, not guaranteed local runtime.
 
 ```bash
 bun skills/agent-faucet/scripts/estimate-proof-time.ts \

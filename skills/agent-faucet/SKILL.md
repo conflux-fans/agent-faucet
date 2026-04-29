@@ -7,7 +7,7 @@ description: Claim native or configured ERC20 test tokens from Agent Faucet depl
 
 Use this skill when an agent needs bootstrap native token for gas or a known ERC20 test token from an Agent Faucet deployment.
 
-Keep user-facing messages high level. Do not describe contract internals, proof schema fields, nonce search, relayer implementation details, or raw command mechanics unless the user explicitly asks.
+Keep user-facing messages high level and use the user's preferred language. If the user has not shown a preference, use the language they used most recently. Do not describe contract internals, proof schema fields, nonce search, relayer implementation details, or raw command mechanics unless the user explicitly asks.
 
 ## Requirements
 
@@ -27,10 +27,10 @@ See `reference/install-requirements.md` for installation and verification comman
    - If claimable: say they can claim now.
    - If not claimable: say they cannot claim now and include the available reason from the config output, such as token disabled or cooldown not finished. Avoid exposing raw target values or proof parameters.
 4. If the user can claim, run `estimate-proof-time.ts` for the selected token. This only reads the token's current difficulty and estimates time from a baseline; it does not perform proof computation and does not need proof-work authorization.
-5. Ask for explicit authorization before running the local proof-of-work calculation. Explain only that this is an anti-abuse check, it uses local CPU briefly, and the rough expected time from `estimate-proof-time.ts`. Prefer the returned `userGuidanceZh` wording when speaking Chinese. Tell the user the default is all logical CPUs, and that they may choose fewer threads such as half CPU or 1 thread/no multithread acceleration. Do not expose raw target values or proof parameters unless the user explicitly asks.
+5. Ask for explicit authorization before running the local proof-of-work calculation. Explain only that this is an anti-abuse check, it uses local CPU briefly, and the rough expected time from `estimate-proof-time.ts`. Use the returned `userGuidance` as source material, but phrase the message in the user's preferred language. When mentioning estimated time, clearly state the benchmark baseline used by the estimate and that actual time varies by hardware and current load. Tell the user the default is all logical CPUs, and that they may choose fewer threads such as half CPU or 1 thread/no multithread acceleration. Do not expose raw target values or proof parameters unless the user explicitly asks.
 6. Only after explicit authorization, run `compute-proof.ts` with the user-selected `--threads` value, then run `submit-claim.ts` with the generated proof JSON. If the user accepts the default, omit `--threads` so the script uses all logical CPUs.
 7. If `compute-proof.ts` fails to find a proof after its attempt limit, read `reference/proof-failure.md` and follow it exactly. Do not explain the failure details from memory during the normal workflow.
-8. After submission completes, show the user the transaction hash and the block explorer link. Build the link from the deployment's `scanUrl` and the returned `txHash`; if `submit-claim.ts` already returns `scanTxUrl`, use that.
+8. After submission completes, show the user the transaction hash and the block explorer link. Do not call any other scripts unless the user explicitly asks.
 
 Native token uses `native` or `0x0000000000000000000000000000000000000000`. ERC20 claims require the caller to provide the token address.
 

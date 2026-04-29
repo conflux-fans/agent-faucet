@@ -95,13 +95,18 @@ describe("skill scripts", () => {
     });
 
     expect(result.canEstimate).toBe(true);
+    if (!result.canEstimate) {
+      throw new Error("Expected proof time estimate to be available");
+    }
     expect(result.difficulty.expectedAttempts).toBe("100000");
     expect(result.difficulty.target).toBe(`0x${target.toString(16)}`);
     expect(result.threads).toEqual({ selected: 8, allCpu: 8, halfCpu: 4, singleThread: 1 });
     expect(result.estimate.expectedMs).toBe("250");
     expect(result.estimates.singleThread.expectedMs).toBe("2000");
-    expect(result.userGuidanceZh).toContain("默认使用 8 个逻辑 CPU");
-    expect(result.userGuidanceZh).toContain("1 线程，约 2 秒");
+    expect(result.baseline.label).toBe("M2 Pro single-thread TypeScript proof loop");
+    expect(result.userGuidance).toContain("M2 Pro single-thread baseline");
+    expect(result.userGuidance).toContain("uses all 8 logical CPUs");
+    expect(result.userGuidance).toContain("1 thread, around 2 seconds");
   });
 
   test("estimate-proof-time reports 10x target near one million expected attempts", async () => {
@@ -117,6 +122,9 @@ describe("skill scripts", () => {
       },
     });
 
+    if (!result.canEstimate) {
+      throw new Error("Expected proof time estimate to be available");
+    }
     expect(result.difficulty.expectedAttempts).toBe("1000000");
     expect(result.estimate.expectedMs).toBe("20000");
   });

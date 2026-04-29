@@ -10,10 +10,10 @@ Tell the user:
 - A single proof computation has about a `1 / 20000` chance of not finding a valid proof within the default attempt limit.
 - Ask whether they want to retry once.
 
-Suggested Chinese wording:
+Suggested wording:
 
 ```text
-这次防滥用计算没有在默认尝试次数内找到 proof。这个情况可能只是概率事件，单次计算大约有 1/20000 的概率失败。是否重试一次？
+The anti-abuse computation did not find a proof within the default attempt limit. This can be a normal probability event: a single computation has about a 1 / 20000 chance of failing this way. Do you want me to retry once?
 ```
 
 ## Retry Rule
@@ -24,8 +24,8 @@ Suggested Chinese wording:
 - If the retry succeeds, continue to `submit-claim.ts`.
 - If the retry also fails, do not try again automatically.
 
-Suggested Chinese wording after the second failure:
+Suggested wording after the second failure:
 
 ```text
-重试后仍然没有找到 proof。我不会继续自动尝试。当前可能只是连续概率失败，也可能和本机环境、RPC 数据或当前链上配置有关。你可以稍后发起诊断请求，我再帮你检查具体原因。
+The retry still did not find a proof. I will not keep retrying automatically. This may be repeated probability failure, or it may be related to the local environment, RPC data, or current on-chain configuration. You can start a diagnostic request later and I can check the specific cause.
 ```
