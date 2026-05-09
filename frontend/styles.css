@@ -93,7 +93,24 @@ h2 {
 
 h1 {
   font-size: clamp(2.8rem, 5.5vw, 5.05rem);
-  max-width: 12ch;
+  max-width: none;
+}
+
+.hero-title {
+  text-wrap: balance;
+}
+
+.hero-title .title-line {
+  display: block;
+}
+
+html[data-lang="zh"] .hero-title {
+  line-height: 1.04;
+}
+
+html[data-lang="zh"] .hero-title .title-line {
+  word-break: keep-all;
+  line-break: strict;
 }
 
 h2 {
@@ -256,8 +273,8 @@ html[data-lang="zh"] .copy-row button[data-copied="true"]::after {
     margin-bottom: 2rem;
   }
 
-  h1 {
-    max-width: 10ch;
+  .hero-title {
+    font-size: 3.35rem;
   }
 
   .copy-row {
@@ -277,5 +294,16 @@ html[data-lang="zh"] .copy-row button[data-copied="true"]::after {
 
   .availability-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 2.25rem 1.25rem 2.5rem;
+  }
+
+  .hero-title {
+    font-size: 2.25rem;
+    line-height: 1.05;
   }
 }
